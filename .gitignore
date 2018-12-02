@@ -1,6 +1,6 @@
 /.idea
 /package-lock.json
-
+*.temp
 
 
 

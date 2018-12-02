@@ -13,6 +13,15 @@ const { GossiperUtils }		= require( './gossiper-utils' );
  */
 class GossiperScuttle
 {
+	/**
+	 *	@constructor
+	 *
+	 *	@param	{object}	oOptions
+	 *	@param	{number}	oOptions.interval	- interval in milliseconds for gossiper communication
+	 *	@param	{string}	oOptions.url		- local url, 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
+	 *	@param	{string}	oOptions.address	- local super node address
+	 *	@param	{function}	oOptions.signer		- local signer function provided by super node
+	 */
 	constructor( oOptions )
 	{
 		//
@@ -25,7 +34,6 @@ class GossiperScuttle
 		//	add self to peers
 		//
 		this.createNewPeer( oOptions.url, oOptions );
-		//this.m_oLocalPeer	= new GossiperPeer( oOptions );
 	}
 
 	/**
@@ -139,6 +147,26 @@ class GossiperScuttle
 	}
 
 	/**
+	 *	get max version seen of peer
+	 *
+	 *	@param	{string}	sPeerUrl
+	 *	@return	{number}
+	 */
+	getPeerMaxVersion( sPeerUrl )
+	{
+		if ( ! DeUtilsCore.isExistingString( sPeerUrl ) )
+		{
+			return 0;
+		}
+		if ( ! DeUtilsCore.isPlainObject( this.m_oPeers[ sPeerUrl ] ) )
+		{
+			return 0;
+		}
+
+		return this.m_oPeers[ sPeerUrl ].getMaxVersion();
+	}
+
+	/**
 	 *	get all peer urls
 	 *
 	 *	@return {Array}
@@ -208,7 +236,6 @@ class GossiperScuttle
 		return arrUrls;
 	}
 
-
 	/**
 	 *	digest
 	 *	All peers( ip:port ) I known and the max version of data stored here.
@@ -265,7 +292,7 @@ class GossiperScuttle
 				//	sPeerUrl	- 'ws://ip:port'
 				//
 				let oPeer		= this.m_oPeers[ sPeerUrl ];
-				let nPeerMaxVersion	= this.getMaxVersionSeenOfPeer( sPeerUrl );
+				let nPeerMaxVersion	= this.getPeerMaxVersion( sPeerUrl );
 				let nDigestMaxVersion	= oDigest[ sPeerUrl ];
 
 				if ( ! this.m_oPeers[ sPeerUrl ] )
@@ -411,26 +438,6 @@ class GossiperScuttle
 			'requests'	: oRequests,		//	objects
 			'new_peers'	: arrNewPeers		//	array
 		};
-	}
-
-	/**
-	 *	get max version seen of peer
-	 *
-	 *	@param	{string}	sPeerUrl
-	 *	@return	{number}
-	 */
-	getMaxVersionSeenOfPeer( sPeerUrl )
-	{
-		if ( ! DeUtilsCore.isExistingString( sPeerUrl ) )
-		{
-			return 0;
-		}
-		if ( ! DeUtilsCore.isPlainObject( this.m_oPeers[ sPeerUrl ] ) )
-		{
-			return 0;
-		}
-
-		return this.m_oPeers[ sPeerUrl ].getMaxVersion();
 	}
 
 	/**

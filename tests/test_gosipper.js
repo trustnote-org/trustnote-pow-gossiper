@@ -1,7 +1,8 @@
 const UrlParser			= require( 'url-parse' );
 const { DeUtilsCore }	= require( 'deutils.js' );
-const { Gossiper }	= require( '../../p2p/gossiper.js' );
-const _pow_service	= require( '../../pow/pow_service.js' );
+const { Gossiper }	= require( '../js/gossiper.js' );
+const _ws_service	= require( '../ws/ws_service.js' );
+
 
 /**
  *	service port
@@ -54,7 +55,6 @@ function startGossiper()
 	{
 		console.log( `))) EVENT [peer_failed] :: `, sPeerUrl );
 	});
-
 	_oGossiper.on( 'new_peer', ( sPeerUrl ) =>
 	{
 		console.log( `))) EVENT [new_peer] :: `, sPeerUrl );
@@ -114,15 +114,6 @@ function onReceiveMessage( sSideType, oWs, sMessage )
 {
 	try
 	{
-		// let oJson = JSON.parse( sMessage );
-		// if ( DeUtilsCore.isPlainObjectWithKeys( oJson, 'url' ) )
-		// {
-		// 	oWs.url		= oJson.url;
-		// 	_oGossiper.updateSockets({
-		// 		[ oJson.url ]	: oWs,
-		// 	});
-		// }
-
 		let arrJson = JSON.parse( sMessage );
 		if ( Array.isArray( arrJson ) &&
 			2 === arrJson.length &&
@@ -189,7 +180,7 @@ function startServer()
 			console.log( `SERVER >> socket was closed(${ sReason })` );
 		}
 	};
-	_pow_service.server.createServer( oServerOptions );
+	_ws_service.server.createServer( oServerOptions );
 }
 
 
@@ -213,7 +204,7 @@ function connectToServer( sRemotePeerUrl )
 			//	update the remote socket
 			//
 			oWs.url	= sRemotePeerUrl;
-			_oGossiper.updateSockets({
+			_oGossiper.updatePeerList({
 				[ sRemotePeerUrl ] : oWs
 			});
 		},
@@ -238,20 +229,19 @@ function connectToServer( sRemotePeerUrl )
 			console.log( `CLIENT >> socket was closed(${ sReason })` );
 		}
 	};
-	_pow_service.client.connectToServer( oClientOptions );
+	_ws_service.client.connectToServer( oClientOptions );
 }
 
 
 
 
-
+/**
+ *	start
+ */
 startGossiper();
 startServer();
-
-for( let nPort of _arrPortList )
+if ( 50000 !== _servicePort )
 {
-	connectToServer( `ws://127.0.0.1:${ nPort }` );
+	connectToServer( `ws://127.0.0.1:50000` );
 }
-
-
 

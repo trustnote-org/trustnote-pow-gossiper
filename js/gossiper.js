@@ -248,28 +248,18 @@ class Gossiper extends EventEmitter
 	 *			'wss://127.0.0.1:60001'	: oSocket,
 	 *			...
 	 *		}
-	 *		{object}	oSocket
-	 *		{
-	 *				address	: 'node address',
-	 *		}
 	 *	@return	{number}	- count of successfully updated
 	 */
-	updateSockets( oMultiSockets )
+	updatePeerList( oMultiSockets )
 	{
-		return this.m_oRouter.updateMultiSockets( oMultiSockets );
-	}
+		//	...
+		this.m_oRouter.updateMultiSockets( oMultiSockets );
 
-
-	/**
-	 * 	check if the nType is a valid message type
-	 *
-	 *	@param	{number}	nType
-	 *	@return {boolean}
-	 */
-	isValidMessageType( nType )
-	{
-		return DeUtilsCore.isNumeric( nType ) &&
-			[ REQUEST, FIRST_RESPONSE, SECOND_RESPONSE ].includes( nType );
+		//	...
+		if ( DeUtilsCore.isPlainObject( oMultiSockets ) )
+		{
+			this._handleNewPeers( Object.keys( oMultiSockets ) );
+		}
 	}
 
 	/**
@@ -279,7 +269,7 @@ class Gossiper extends EventEmitter
 	 *	@param	{object}	oPeerConfig
 	 *	@return {*}
 	 */
-	createPeer( sPeerUrl, oPeerConfig )
+	addOrUpdatePeer( sPeerUrl, oPeerConfig )
 	{
 		let oCreate	= this.m_oScuttle.createNewPeer( sPeerUrl, oPeerConfig );
 		if ( oCreate.new )
@@ -292,6 +282,18 @@ class Gossiper extends EventEmitter
 		}
 
 		return oCreate;
+	}
+
+	/**
+	 * 	check if the nType is a valid message type
+	 *
+	 *	@param	{number}	nType
+	 *	@return {boolean}
+	 */
+	isValidMessageType( nType )
+	{
+		return DeUtilsCore.isNumeric( nType ) &&
+			[ REQUEST, FIRST_RESPONSE, SECOND_RESPONSE ].includes( nType );
 	}
 
 	/**
@@ -360,6 +362,7 @@ class Gossiper extends EventEmitter
 		(
 			() =>
 			{
+				this._printDebug();
 				this._gossip();
 				this._startGossip();
 			},
@@ -367,20 +370,8 @@ class Gossiper extends EventEmitter
 		);
 	}
 
-
-	/**
-	 *	The method of choosing which peer(s) to gossip to is borrowed from Cassandra.
-	 *	They seemed to have worked out all of the edge cases
-	 *
-	 *	@see http://wiki.apache.org/cassandra/ArchitectureGossip
-	 */
-	_gossip()
+	_printDebug()
 	{
-		let arrLivePeerUrls	= this.m_oScuttle.getLivePeerUrls();
-		let arrDeadPeerUrls	= this.m_oScuttle.getDeadPeerUrls();
-		let sLivePeerUrl	= null;
-		let sDeadPeerUrl	= null;
-
 		////////////////////////////////////////////////////////////////////////////////
 		//	for debug
 		////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +392,7 @@ class Gossiper extends EventEmitter
 			oAllPeerDataSorted[ sKey ] = oAllPeerData[ sKey ];
 		});
 
-		_fs.writeFile( `data_${ oUrl.port }.json`, JSON.stringify( oAllPeerDataSorted, null, 4 ), err =>
+		_fs.writeFile( `data_${ oUrl.port }.temp`, JSON.stringify( oAllPeerDataSorted, null, 4 ), err =>
 		{
 			if ( err )
 			{
@@ -410,10 +401,20 @@ class Gossiper extends EventEmitter
 		});
 		////////////////////////////////////////////////////////////////////////////////
 		////////////////////////////////////////////////////////////////////////////////
+	}
 
-
-
-
+	/**
+	 *	The method of choosing which peer(s) to gossip to is borrowed from Cassandra.
+	 *	They seemed to have worked out all of the edge cases
+	 *
+	 *	@see http://wiki.apache.org/cassandra/ArchitectureGossip
+	 */
+	_gossip()
+	{
+		let arrLivePeerUrls	= this.m_oScuttle.getLivePeerUrls();
+		let arrDeadPeerUrls	= this.m_oScuttle.getDeadPeerUrls();
+		let sLivePeerUrl	= null;
+		let sDeadPeerUrl	= null;
 
 		//
 		//	Find a live peer to gossip to
@@ -477,8 +478,15 @@ class Gossiper extends EventEmitter
 		//
 		//	Choose random peer to gossip to
 		//
-		let i = Math.floor( Math.random() * 1000000 ) % arrPeers.length;
-		return arrPeers[ i ];
+		let sRet		= null;
+		let arrLeftPeers	= arrPeers.filter( sPeerUrl => { return sPeerUrl !== this.m_oScuttle.m_sLocalUrl } );
+		if ( Array.isArray( arrLeftPeers ) && arrLeftPeers.length > 0 )
+		{
+			let i	= Math.floor( Math.random() * 1000000 ) % arrLeftPeers.length;
+			sRet	= arrLeftPeers[ i ];
+		}
+
+		return sRet;
 	}
 
 	/**
@@ -547,7 +555,7 @@ class Gossiper extends EventEmitter
 			let sPeerUrl	= arrNewPeers[ i ];
 			if ( GossiperUtils.isValidPeerUrl( sPeerUrl ) )
 			{
-				let oCreateResult = this.createPeer( sPeerUrl, {} );
+				let oCreateResult = this.addOrUpdatePeer( sPeerUrl, {} );
 				if ( oCreateResult.peer &&
 					oCreateResult.new )
 				{
