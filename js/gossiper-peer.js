@@ -50,10 +50,10 @@ class GossiperPeer extends EventEmitter
 		//
 		this.m_oConfig =
 			{
-				url		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'url' ) ? oOptions.url : null,
-				signer		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'signer' ) ? oOptions.signer : null
+				url	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'url' ) ? oOptions.url : null,
+				address	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'address' ) ? oOptions.address : null,
+				signer	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'signer' ) ? oOptions.signer : null
 			};
-		this.updateLocalValueAndMaxVersion( 'address', oOptions.address, err =>{} );
 	}
 
 	/**
@@ -325,12 +325,8 @@ class GossiperPeer extends EventEmitter
 	beatHeart()
 	{
 		this.m_nHeartbeatVersion += 1;
-		this.updateLocalValueAndMaxVersion( '__heartbeat__', this.m_nHeartbeatVersion, err =>
-		{
-		});
-
-		//	...
-		//console.log( `${ new Date().toString() } :: __heartbeat__` );
+		this.updateLocalValueAndMaxVersion( '__heartbeat__', this.m_nHeartbeatVersion, err => {} );
+		this.updateLocalValueAndMaxVersion( 'address', this.m_oConfig.address, err =>{} );
 	}
 
 }

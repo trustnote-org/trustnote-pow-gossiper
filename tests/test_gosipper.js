@@ -29,7 +29,7 @@ let _arrPortList	= [
 let _oGossiperOptions	= {
 	interval	: 1000,
 	url		: `ws://127.0.0.1:${ _servicePort }`,
-	address		: 'its my address',
+	address		: `address_${ _servicePort }_f999`,
 	signer		: ( sMessage ) =>
 	{
 	}
