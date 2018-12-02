@@ -45,20 +45,21 @@ function startGossiper()
 {
 	_oGossiper.on( 'peer_update', ( sPeerUrl, sKey, vValue ) =>
 	{
-		console.log( `))) EVENT [peer_update] :: `, sPeerUrl, sKey, vValue );
+	//	console.log( `))) EVENT [peer_update] :: `, sPeerUrl, sKey, vValue );
 	});
 	_oGossiper.on( 'peer_alive', ( sPeerUrl ) =>
 	{
-		console.log( `))) EVENT [peer_alive] :: `, sPeerUrl );
+	//	console.log( `))) EVENT [peer_alive] :: `, sPeerUrl );
 	});
 	_oGossiper.on( 'peer_failed', ( sPeerUrl ) =>
 	{
-		console.log( `))) EVENT [peer_failed] :: `, sPeerUrl );
+	//	console.log( `))) EVENT [peer_failed] :: `, sPeerUrl );
 	});
 	_oGossiper.on( 'new_peer', ( sPeerUrl ) =>
 	{
 		console.log( `))) EVENT [new_peer] :: `, sPeerUrl );
-		if ( sPeerUrl !== _oGossiperOptions.url && ! _oGossiper.m_oScuttle.getPeer( sPeerUrl ) )
+		if ( sPeerUrl !== _oGossiperOptions.url &&
+			! _oGossiper.m_oRouter.getSocket( sPeerUrl ) )
 		{
 			connectToServer( sPeerUrl );
 		}

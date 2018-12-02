@@ -309,6 +309,7 @@ class Gossiper extends EventEmitter
 		////////////////////////////////////////////////////////////////////////////////
 		//	for debug
 		////////////////////////////////////////////////////////////////////////////////
+		//console.log( `gossiper all peers: `, Object.keys( this.m_oScuttle.m_oPeers ) );
 		let oUrl		= GossiperUtils.parsePeerUrl( this.m_oScuttle.m_sLocalUrl );
 		let oAllPeerData	= {};
 		for ( let sPeerUrl in this.m_oScuttle.m_oPeers )
