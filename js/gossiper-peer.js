@@ -32,26 +32,28 @@ class GossiperPeer extends EventEmitter
 		super();
 
 		//
-		//	configurations
+		//	Detector
 		//
-		this.m_oConfig =
-			{
-				url		: '',
-				address		: '',
-				singer		: null,
-				maxVersion	: 0,
-			};
-		this.updateConfig( oOptions );
+		this.m_oDetector		= new GossiperDetector();
 
 		//
-		//	attributes
+		//	Attributes
 		//
 		this.m_bAlive			= true;
 
 		this.m_oAttributes		= {};
+		this.m_nMaxVersion		= 0;
 		this.m_nHeartbeatVersion	= 0;
 
-		this.m_oDetector		= new GossiperDetector();
+		//
+		//	Configurations
+		//
+		this.m_oConfig =
+			{
+				url		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'url' ) ? oOptions.url : null,
+				signer		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'signer' ) ? oOptions.signer : null
+			};
+		this.updateLocalValueAndMaxVersion( 'address', oOptions.address, err =>{} );
 	}
 
 	/**
@@ -61,7 +63,17 @@ class GossiperPeer extends EventEmitter
 	 */
 	getUrl()
 	{
-		return this.getConfigItem( 'url' );
+		return this.m_oConfig.url;
+	}
+
+	/**
+	 * 	get signer
+	 *
+	 *	@return {function|null}
+	 */
+	getSigner()
+	{
+		return this.m_oConfig.signer;
 	}
 
 	/**
@@ -71,7 +83,7 @@ class GossiperPeer extends EventEmitter
 	 */
 	getMaxVersion()
 	{
-		return this.getConfigItem( 'maxVersion' );
+		return this.m_nMaxVersion;
 	}
 
 	/**
@@ -81,81 +93,7 @@ class GossiperPeer extends EventEmitter
 	 */
 	increaseMaxVersion()
 	{
-		return this.updateConfigItem( 'maxVersion', this.getConfigItem( 'maxVersion' ) + 1 );
-	}
-
-
-	/**
-	 *	get config
-	 *
-	 *	@return { { url: string, address: string, singer: null } }
-	 */
-	getConfig()
-	{
-		return this.m_oConfig;
-	}
-
-	/**
-	 *	update configurations
-	 *
-	 *	@param	{object}	oOptions
-	 *	@param	{string}	[oOptions.url=]		- peer url
-	 *	@param	{string}	[oOptions.address=]	- super node address
-	 *	@param	{function}	[oOptions.signer=]	- signer function provided by super node
-	 *	@param	{object}	[oOptions.socket=]	- socket handle which connect to the super node
-	 */
-	updateConfig( oOptions )
-	{
-		if ( ! DeUtilsCore.isPlainObject( oOptions ) )
-		{
-			return false;
-		}
-
-		for ( let sKey in oOptions )
-		{
-			this.updateConfigItem( sKey, oOptions[ sKey ] );
-		}
-
-		return true;
-	}
-
-	/**
-	 *	get config item
-	 *
-	 *	@param	{string}	sKey
-	 *	@return {*}
-	 */
-	getConfigItem( sKey )
-	{
-		let vRet = null;
-
-		if ( DeUtilsCore.isExistingString( sKey ) &&
-			DeUtilsCore.isPlainObjectWithKeys( this.m_oConfig, sKey ) )
-		{
-			vRet = this.m_oConfig[ sKey ];
-		}
-
-		return vRet;
-	}
-
-	/**
-	 *	update config item by key
-	 *
-	 *	@param	{string}	sKey
-	 *	@param	{}		vValue
-	 *	@return	{boolean}
-	 */
-	updateConfigItem( sKey, vValue )
-	{
-		let bRet = false;
-
-		if ( DeUtilsCore.isExistingString( sKey ) )
-		{
-			bRet = true;
-			this.m_oConfig[ sKey ] = vValue;
-		}
-
-		return bRet;
+		this.m_nMaxVersion ++;
 	}
 
 	/**
@@ -330,7 +268,7 @@ class GossiperPeer extends EventEmitter
 		if ( nVersion > this.getMaxVersion() )
 		{
 			//	update max version seen
-			this.updateConfigItem( 'maxVersion', nVersion );
+			this.m_nMaxVersion = nVersion;
 			this.setValue( sKey, vValue, nVersion, err =>
 			{
 				if ( err )

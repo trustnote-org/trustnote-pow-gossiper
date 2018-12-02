@@ -120,7 +120,7 @@ function onReceiveMessage( sSideType, oWs, sMessage )
 			'gossiper' === arrJson[ 0 ] &&
 			DeUtilsCore.isPlainObjectWithKeys( arrJson[ 1 ], 'type' ) )
 		{
-			_oGossiper.onMessage( oWs, arrJson[ 1 ] );
+			_oGossiper.onReceivedMessage( oWs, arrJson[ 1 ] );
 		}
 		else
 		{
@@ -129,7 +129,7 @@ function onReceiveMessage( sSideType, oWs, sMessage )
 	}
 	catch( e )
 	{
-		console.error( `${ sSideType } >> onMessage occurred exception: ${ JSON.stringify( e ) }` );
+		console.error( `${ sSideType } >> onReceivedMessage occurred exception: ${ JSON.stringify( e ) }` );
 	}
 }
 

@@ -5,6 +5,8 @@ const { DeUtilsCore }		= require( 'deutils.js' );
 const { GossiperRouter }	= require( './gossiper-router' );
 const { GossiperScuttle }	= require( './gossiper-scuttle' );
 const { GossiperUtils }		= require( './gossiper-utils' );
+const { GossiperMessages }	= require( './gossiper-types' );
+const { GossiperEvents }	= require( './gossiper-types' );
 
 
 
@@ -12,62 +14,6 @@ const { GossiperUtils }		= require( './gossiper-utils' );
  *	@constants
  */
 const DEFAULT_INTERVAL		= 1000;		//	default interval in milliseconds for gossiper communication
-
-
-
-
-
-/**
- *	SYN:
- *	Gossip Digest Syn Message
- *
- *	The node initiating the round of gossip sends the SYN message which contains a compendium of the nodes in the cluster.
- *	It contains tuples of the IP address of a node in the cluster, the generation and the heartbeat version of the node.
- */
-const REQUEST			= 0;
-
-/**
- *	ACK:
- *	Gossip Digest Ack Message
- *
- *	The peer after receiving SYN message compares its own metadata information with
- *	the one sent by the initiator and produces a diff.
- *	ACK contains two kinds of data.
- *	One part consists of updated metadata information (AppStates) that the peer has but the initiator doesn't,
- *	and the other part consists of digest of nodes the initiator has that the peer doesn't.
- */
-const FIRST_RESPONSE		= 1;
-
-/**
- *	ACK2:
- * 	Gossip Digest Ack2 Message
- *
- *	The initiator receives the ACK from peer and updates its metadata from the AppStates and sends back ACK2
- *	containing the metadata information the peer has requested for.
- *	The peer receives ACK2, updates its metadata and the round of gossip concludes.
- */
-const SECOND_RESPONSE		= 2;
-
-
-/**
- * 	@events
- *
- *	@event	peer_update
- * 	@param	{string}	sPeerUrl
- * 	@param	{string}	sKey
- * 	@param	{}		vValue
- *
- *	@event	peer_alive
- * 	@param	{string}	sPeerUrl
- *
- *	@event	peer_failed
- * 	@param	{string}	sPeerUrl
- *
- *	@event	new_peer
- * 	@param	{string}	sPeerUrl
- */
-
-
 
 
 
@@ -165,19 +111,19 @@ class Gossiper extends EventEmitter
 	 *	@param	{array}		[oMessage.updates=]
 	 *	@return	{*}
 	 */
-	onMessage( oSocket, oMessage )
+	onReceivedMessage( oSocket, oMessage )
 	{
 		if ( ! oSocket )
 		{
-			return this._emitErrorLog( `call onMessage with invalid oSocket: ${ JSON.stringify( oSocket ) }.` );
+			return this._emitErrorLog( `call onReceivedMessage with invalid oSocket: ${ JSON.stringify( oSocket ) }.` );
 		}
 		if ( ! DeUtilsCore.isPlainObjectWithKeys( oMessage, 'type' ) )
 		{
-			return this._emitErrorLog( `call onMessage with invalid oMessage: ${ JSON.stringify( oMessage ) }.` );
+			return this._emitErrorLog( `call onReceivedMessage with invalid oMessage: ${ JSON.stringify( oMessage ) }.` );
 		}
-		if ( ! this.isValidMessageType( oMessage.type ) )
+		if ( ! GossiperMessages.isValidMessageType( oMessage.type ) )
 		{
-			return this._emitErrorLog( `call onMessage with invalid oMessage.type: ${ JSON.stringify( oMessage.type ) }.` );
+			return this._emitErrorLog( `call onReceivedMessage with invalid oMessage.type: ${ JSON.stringify( oMessage.type ) }.` );
 		}
 
 		//
@@ -185,7 +131,7 @@ class Gossiper extends EventEmitter
 		//
 		switch ( oMessage.type )
 		{
-			case REQUEST:
+			case GossiperMessages.REQUEST:
 				//
 				//	oMsg.digest :
 				//	{
@@ -197,7 +143,7 @@ class Gossiper extends EventEmitter
 				this._sendMessage( oSocket, this._firstResponseMessage( oMessage.digest ) );
 				break;
 
-			case FIRST_RESPONSE:
+			case GossiperMessages.FIRST_RESPONSE:
 				//
 				//	first response from other peers
 				//
@@ -220,7 +166,7 @@ class Gossiper extends EventEmitter
 				this._sendMessage( oSocket, this._secondResponseMessage( oMessage.request_digest ) );
 				break;
 
-			case SECOND_RESPONSE:
+			case GossiperMessages.SECOND_RESPONSE:
 				//
 				//	second response from other peers
 				//
@@ -282,18 +228,6 @@ class Gossiper extends EventEmitter
 		}
 
 		return oCreate;
-	}
-
-	/**
-	 * 	check if the nType is a valid message type
-	 *
-	 *	@param	{number}	nType
-	 *	@return {boolean}
-	 */
-	isValidMessageType( nType )
-	{
-		return DeUtilsCore.isNumeric( nType ) &&
-			[ REQUEST, FIRST_RESPONSE, SECOND_RESPONSE ].includes( nType );
 	}
 
 	/**
@@ -508,7 +442,7 @@ class Gossiper extends EventEmitter
 		if ( oSocket )
 		{
 			//
-			//	send REQUEST message to peer
+			//	send GossiperMessages.REQUEST message to peer
 			//
 			this._sendMessage( oSocket, this._requestMessage() );
 		}
@@ -614,7 +548,7 @@ class Gossiper extends EventEmitter
 		//	}
 		//
 		return {
-			type	: REQUEST,
+			type	: GossiperMessages.REQUEST,
 			digest	: this.m_oScuttle.digest(),
 		};
 	}
@@ -663,7 +597,7 @@ class Gossiper extends EventEmitter
 
 		//	...
 		return {
-			type		: FIRST_RESPONSE,
+			type		: GossiperMessages.FIRST_RESPONSE,
 			request_digest	: oScuttle.requests,
 			updates		: oScuttle.deltas
 		};
@@ -694,7 +628,7 @@ class Gossiper extends EventEmitter
 		// 	]
 		//
 		return {
-			type	: SECOND_RESPONSE,
+			type	: GossiperMessages.SECOND_RESPONSE,
 			updates	: this.m_oScuttle.fetchDeltas( oRequests )
 		};
 	}

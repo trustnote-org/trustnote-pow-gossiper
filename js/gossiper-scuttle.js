@@ -1,3 +1,4 @@
+const { EventEmitter }		= require( 'events' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
 
@@ -11,7 +12,7 @@ const { GossiperUtils }		= require( './gossiper-utils' );
  * 	@class GossiperScuttle
  *	@type {GossiperScuttle}
  */
-class GossiperScuttle
+class GossiperScuttle extends EventEmitter
 {
 	/**
 	 *	@constructor
@@ -24,6 +25,8 @@ class GossiperScuttle
 	 */
 	constructor( oOptions )
 	{
+		super();
+
 		//
 		//	all peers
 		//
@@ -500,7 +503,7 @@ class GossiperScuttle
 
 
 	/**
-	 *	build updates for SECOND_RESPONSE
+	 *	build updates for GossiperMessages.SECOND_RESPONSE
 	 *	@param	{object}	oRequests
 	 *	@return	{Array}
 	 */
