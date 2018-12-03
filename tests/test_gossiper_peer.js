@@ -86,7 +86,9 @@ describe( 'GossiperPeer.test', () =>
 				ps.updateLocalValueAndMaxVersion( 'a', 'super', err3 =>
 				{
 					assert.equal( 3, ps.getMaxVersion() );
-					assert.deepEqual( [ [ 'a', 'super', 2 ] ], ps.getDeltasAfterVersion( 1 ) );
+					assert.deepEqual( [ [ 'a', 'super', 3 ], [ 'b', 'blah', 2 ] ], ps.getDeltasAfterVersion( 1 ) );
+					assert.deepEqual( [ [ 'a', 'super', 3 ] ], ps.getDeltasAfterVersion( 2 ) );
+					assert.deepEqual( [], ps.getDeltasAfterVersion( 3 ) );
 
 					//	...
 					pfnDone();
