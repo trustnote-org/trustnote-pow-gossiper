@@ -2,7 +2,6 @@ const { EventEmitter }		= require( 'events' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
 
-const { GossiperDetector }	= require( './gossiper-detector' );
 const { GossiperUtils }		= require( './gossiper-utils' );
 
 

@@ -11,6 +11,10 @@
 		"gossiper"
 	],
 	"homepage": "https://github.com/trustnote/trustnote-pow-gossiper",
+	"engines": {
+		"node": ">=0.10.0"
+	},
+	"main": "js/index.js",
 	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/trustnote/trustnote-pow-gossiper.git",

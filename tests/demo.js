@@ -1,11 +1,19 @@
-const UrlParser			= require( 'url-parse' );
 const { DeUtilsCore }	= require( 'deutils.js' );
 const { Gossiper }	= require( '../js/gossiper.js' );
 const _ws_service	= require( '../ws/ws_service.js' );
 
 
+
 /**
- *	service port
+ *	global values
+ */
+let _seed_servers	= [
+	'ws://127.0.0.1:50000',
+];
+
+
+/**
+ * 	service port
  */
 let _servicePort	= 50000;
 if ( Array.isArray( process.argv ) && process.argv.length >= 3 )
@@ -13,15 +21,6 @@ if ( Array.isArray( process.argv ) && process.argv.length >= 3 )
 	_servicePort	= parseInt( process.argv[ 2 ] );
 }
 
-/**
- *	port list
- */
-let _arrPortList	= [
-				50000,
-				50001,
-				// 50002,
-				// 50003,
-			].filter( nPort => nPort !== _servicePort );
 
 /**
  *	Gossiper options
@@ -29,7 +28,7 @@ let _arrPortList	= [
 let _oGossiperOptions	= {
 	interval	: 1000,
 	url		: `ws://127.0.0.1:${ _servicePort }`,
-	address		: `address_${ _servicePort }_f999`,
+	address		: `super_node_address_[${ _servicePort }]`,
 	signer		: ( sMessage ) =>
 	{
 	}
@@ -67,14 +66,6 @@ function startGossiper()
 
 
 	let oSeeds = {};
-	// if ( 50000 === _servicePort )
-	// {
-	// 	oSeeds = {
-	// 		'ws://127.0.0.1:50001'	: null,
-	// 		'ws://127.0.0.1:50002'	: null,
-	// 		'ws://127.0.0.1:50003'	: null,
-	// 	};
-	// }
 
 	//
 	//	start gossiper
@@ -85,30 +76,14 @@ function startGossiper()
 	//
 	//	update data
 	//
-	if ( 50000 === _servicePort )
-	{
-		setInterval
-		(
-			() =>
-			{
-				_oGossiper.setLocalValue( `key_main`, Date.now(), err =>{} );
-				//console.log( `[${ _oGossiper.m_oLocalPeer.getUrl() }]_oGossiper.setLocalValue( key_main ): ${ _oGossiper.m_oLocalPeer.getMaxVersion() }` );
-			},
-			DeUtilsCore.getRandomInt( 800, 1000 )
-		);
-	}
-	else
-	{
-		setInterval
-		(
-			() =>
-			{
-				_oGossiper.setLocalValue( `key_${ _servicePort }`, Date.now(), err =>{} );
-				//console.log( `[${ _oGossiper.m_oLocalPeer.getUrl() }]_oGossiper.setLocalValue( key_${ _servicePort } ): ${ _oGossiper.m_oLocalPeer.getMaxVersion() }` );
-			},
-			DeUtilsCore.getRandomInt( 1000, 2000 )
-		);
-	}
+	setInterval
+	(
+		() =>
+		{
+			_oGossiper.setLocalValue( `key_${ _servicePort }`, Date.now(), err =>{} );
+		},
+		DeUtilsCore.getRandomInt( 1000, 2000 )
+	);
 }
 
 function onReceiveMessage( sSideType, oWs, sMessage )
@@ -190,6 +165,12 @@ function startServer()
  */
 function connectToServer( sRemotePeerUrl )
 {
+	if ( _oGossiperOptions.url === sRemotePeerUrl )
+	{
+		console.log( `CAN'T CONNECT TO SELF.` );
+		return false;
+	}
+
 	const oClientOptions	= {
 		minerGateway	: sRemotePeerUrl,
 		onOpen		: ( err, oWs ) =>
@@ -231,6 +212,9 @@ function connectToServer( sRemotePeerUrl )
 		}
 	};
 	_ws_service.client.connectToServer( oClientOptions );
+
+	//	...
+	return true;
 }
 
 
@@ -241,8 +225,8 @@ function connectToServer( sRemotePeerUrl )
  */
 startGossiper();
 startServer();
-if ( 50000 !== _servicePort )
+for ( let nIndex in _seed_servers )
 {
-	connectToServer( `ws://127.0.0.1:50000` );
+	let sPeerSeed	= _seed_servers[ nIndex ];
+	connectToServer( sPeerSeed );
 }
-
