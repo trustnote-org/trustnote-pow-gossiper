@@ -2,6 +2,9 @@ const UrlParser			= require( 'url-parse' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
 
+const { GossiperReservedKeys }	= require( 'gossiper-constants' );
+
+
 
 
 /**
@@ -72,6 +75,19 @@ class GossiperUtils
 			DeUtilsNetwork.isValidPort( oPeerUrl.port ) &&
 			DeUtilsCore.isExistingString( oPeerUrl.protocol );
 	}
+
+
+	/**
+	 * 	check if sKey is a reserved key
+	 *
+	 *	@param	{string}	sKey
+	 *	@return {boolean}
+	 */
+	static isReservedKey( sKey )
+	{
+		return GossiperReservedKeys.includes( sKey );
+	}
+
 
 
 }

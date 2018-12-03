@@ -5,8 +5,8 @@ const { DeUtilsCore }		= require( 'deutils.js' );
 const { GossiperRouter }	= require( './gossiper-router' );
 const { GossiperScuttle }	= require( './gossiper-scuttle' );
 const { GossiperUtils }		= require( './gossiper-utils' );
-const { GossiperMessages }	= require( './gossiper-types' );
-const { GossiperEvents }	= require( './gossiper-types' );
+const { GossiperMessages }	= require( './gossiper-constants' );
+const { GossiperEvents }	= require( './gossiper-constants' );
 
 
 

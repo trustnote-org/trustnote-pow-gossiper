@@ -1,8 +1,8 @@
 'use strict';
 
 const { Gossiper }		= require( './gossiper.js' );
-const { GossiperMessages }	= require( './gossiper-types.js' );
-const { GossiperEvents }	= require( './gossiper-types.js' );
+const { GossiperMessages }	= require( './gossiper-constants.js' );
+const { GossiperEvents }	= require( './gossiper-constants.js' );
 const { GossiperUtils }		= require( './gossiper-utils.js' );
 
 

@@ -75,6 +75,17 @@ const GossiperEvents	=
 };
 
 
+/**
+ *	Reserved keys
+ */
+const GossiperReservedKeys	=
+[
+	'__heartbeat__',
+	'address'
+];
+
+
+
 
 /**
  *	@exports
@@ -83,4 +94,5 @@ module.exports	=
 {
 	GossiperMessages	: GossiperMessages,
 	GossiperEvents		: GossiperEvents,
+	GossiperReservedKeys	: GossiperReservedKeys,
 };
