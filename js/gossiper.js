@@ -103,7 +103,7 @@ class Gossiper extends EventEmitter
 	 *	handle message given by caller
 	 *	* I AM A CALLEE, THE MESSAGE WAS DELIVERED BY CALLER
 	 *
-	 *	@param	{function}	oSocket
+	 *	@param	{object}	oSocket
 	 *	@param	{object}	oMessage
 	 *	@param	{number}	oMessage.type
 	 *	@param	{object}	[oMessage.digest=]
