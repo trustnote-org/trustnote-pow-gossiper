@@ -67,11 +67,21 @@ class GossiperPeer extends EventEmitter
 	}
 
 	/**
+	 * 	get local address
+	 *
+	 *	@return {string|null}
+	 */
+	getLocalAddress()
+	{
+		return this.m_oConfig.address;
+	}
+
+	/**
 	 * 	get signer
 	 *
 	 *	@return {function|null}
 	 */
-	getSigner()
+	getLocalSigner()
 	{
 		return this.m_oConfig.pfnSigner;
 	}

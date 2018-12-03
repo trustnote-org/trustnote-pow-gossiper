@@ -217,7 +217,7 @@ class Gossiper extends EventEmitter
 	 */
 	addOrUpdatePeer( sPeerUrl, oPeerConfig )
 	{
-		let oCreate	= this.m_oScuttle.createNewPeer( sPeerUrl, oPeerConfig );
+		let oCreate	= this.m_oScuttle.createPeer( sPeerUrl, oPeerConfig );
 		if ( oCreate.new )
 		{
 			//

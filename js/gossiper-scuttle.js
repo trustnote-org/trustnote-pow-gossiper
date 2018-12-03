@@ -36,7 +36,7 @@ class GossiperScuttle extends EventEmitter
 		//
 		//	add self to peers
 		//
-		this.createNewPeer( oOptions.url, oOptions );
+		this.createPeer( oOptions.url, oOptions );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class GossiperScuttle extends EventEmitter
 	 *	@param	{object}	oPeerConfig
 	 *	@return {*}
 	 */
-	createNewPeer( sPeerUrl, oPeerConfig )
+	createPeer( sPeerUrl, oPeerConfig )
 	{
 		let oPeer	= null;
 		let bNew	= false;
@@ -94,7 +94,7 @@ class GossiperScuttle extends EventEmitter
 				//
 				//	create new
 				//
-				let oPeerOptions = Object.assign( {}, oPeerConfig );
+				let oPeerOptions = Object.assign( {}, oPeerConfig, { url : sPeerUrl } );
 				this.m_oPeers[ sPeerUrl ] = new GossiperPeer( oPeerOptions );
 
 				//	...
