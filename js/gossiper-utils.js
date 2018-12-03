@@ -2,7 +2,7 @@ const UrlParser			= require( 'url-parse' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
 
-const { GossiperReservedKeys }	= require( 'gossiper-constants' );
+const { GossiperReservedKeys }	= require( './gossiper-constants' );
 
 
 
