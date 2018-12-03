@@ -1,5 +1,5 @@
 const assert		= require( 'assert' );
-const { GossiperPeer }	= require( '../lib/gossiper-peer' );
+const { GossiperPeer }	= require( '../js/gossiper-peer' );
 
 
 describe( 'GossiperPeer.test', () =>
@@ -7,7 +7,7 @@ describe( 'GossiperPeer.test', () =>
 	//	UpdateWithDelta
 	it( "updateWithDelta should set key to value", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
 		ps.updateWithDelta( 'a', 'hello', 12, err =>
 		{
 			assert.equal( 'hello', ps.getValue( 'a' ) );
@@ -17,12 +17,12 @@ describe( 'GossiperPeer.test', () =>
 
 	it( "updateWithDelta should update the max version", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
 		ps.updateWithDelta( 'a', 'hello', 12, err1 =>
 		{
 			ps.updateWithDelta( 'a', 'hello', 14, err2 =>
 			{
-				assert.equal( 14, ps.m_nMaxVersionSeen );
+				assert.equal( 14, ps.getMaxVersion() );
 				pfnDone();
 			});
 		});
@@ -30,10 +30,10 @@ describe( 'GossiperPeer.test', () =>
 
 	it( "updates should trigger 'update' event", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
 		let n = 0;
 
-		ps.on( 'update', function( k, v )
+		ps.on( 'peer_update', function( k, v )
 		{
 			++n;
 			assert.equal( 'a', k );
@@ -52,9 +52,9 @@ describe( 'GossiperPeer.test', () =>
 	//	updateLocalValue
 	it( "updateLocalValue should set key to value", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
 
-		ps.updateLocalValue( 'a', 'hello', err =>
+		ps.updateLocalValueAndMaxVersion( 'a', 'hello', err =>
 		{
 			assert.equal( 'hello', ps.getValue( 'a' ) );
 			pfnDone();
@@ -63,13 +63,13 @@ describe( 'GossiperPeer.test', () =>
 
 	it ( "updateLocalValue should increment the max version", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
 
-		ps.updateLocalValue( 'a', 'hello', err1 =>
+		ps.updateLocalValueAndMaxVersion( 'a', 'hello', err1 =>
 		{
-			ps.updateLocalValue( 'a', 'hello', err2 =>
+			ps.updateLocalValueAndMaxVersion( 'a', 'hello', err2 =>
 			{
-				assert.equal( 2, ps.m_nMaxVersionSeen );
+				assert.equal( 2, ps.getMaxVersion() );
 				pfnDone();
 			});
 		});
@@ -78,14 +78,17 @@ describe( 'GossiperPeer.test', () =>
 	//	getDeltasAfterVersion
 	it( "getDeltasAfterVersion should return all deltas after a version number", ( pfnDone ) =>
 	{
-		let ps = new GossiperPeer();
-		ps.updateLocalValue( 'a', 1, err1 =>
+		let ps = new GossiperPeer( { url : 'ws://127.0.0.1:50000', address: 'my_address' } );
+		ps.updateLocalValueAndMaxVersion( 'a', 1, err1 =>
 		{
-			ps.updateLocalValue( 'b', 'blah', err2 =>
+			ps.updateLocalValueAndMaxVersion( 'b', 'blah', err2 =>
 			{
-				ps.updateLocalValue( 'a', 'super', err3 =>
+				ps.updateLocalValueAndMaxVersion( 'a', 'super', err3 =>
 				{
-					assert.deepEqual( [ [ 'a','super','3' ] ], ps.getDeltasAfterVersion( 2 ) );
+					assert.equal( 3, ps.getMaxVersion() );
+					assert.deepEqual( [ [ 'a', 'super', 2 ] ], ps.getDeltasAfterVersion( 1 ) );
+
+					//	...
 					pfnDone();
 				});
 			});

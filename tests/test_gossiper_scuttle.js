@@ -1,40 +1,38 @@
 const assert			= require( 'assert' );
-const { GossiperScuttle }	= require( '../lib/gossiper-scuttle' );
-const { GossiperPeer }		= require( '../lib/gossiper-peer' );
+const { GossiperScuttle }	= require( '../js/gossiper-scuttle' );
+const { GossiperPeer }		= require( '../js/gossiper-peer' );
 
 
-describe( 'peer_state.test', () =>
+describe( 'GossiperScuttle.test', () =>
 {
 	//	digest
 	it( 'digest should have max versions we have seen', () =>
 	{
-		let sPeerName1	= '127.0.0.1:60001';
-		let sPeerName2	= '127.0.0.1:60002';
-		let sPeerName3	= '127.0.0.1:60003';
+		let sPeerUrl1	= 'ws://127.0.0.1:60001';
+		let sPeerUrl2	= 'ws://127.0.0.1:60002';
+		let sPeerUrl3	= 'ws://127.0.0.1:60003';
 
-		let p1	= new GossiperPeer( sPeerName1 );
-		p1.m_nMaxVersionSeen = 10;
+		//	create Scuttle with peer 1
+		let oScuttle = new GossiperScuttle( { url : sPeerUrl1, address : 'my address 1', pfnSigner : sMessage => {} } );
 
-		let p2	= new GossiperPeer( sPeerName2 );
-		p2.m_nMaxVersionSeen = 12;
+		//	create peer 2, 3
+		oScuttle.createPeer( sPeerUrl2, { url : sPeerUrl2, address : 'my address 2' } );
+		oScuttle.createPeer( sPeerUrl3, { url : sPeerUrl3, address : 'my address 3' } );
 
-		let p3	= new GossiperPeer( sPeerName3 );
-		p3.m_nMaxVersionSeen = 22;
+		//	force to update max version
+		oScuttle.getPeer( sPeerUrl1 ).m_nMaxVersion	= 10;
+		oScuttle.getPeer( sPeerUrl2 ).m_nMaxVersion	= 12;
+		oScuttle.getPeer( sPeerUrl3 ).m_nMaxVersion	= 22;
 
-
-		let oPeers =
-		{
-			[ sPeerName1 ]	: p1,
-			[ sPeerName2 ]	: p2,
-			[ sPeerName3 ]	: p3,
-		};
-		let oScuttle = new GossiperScuttle( oPeers );
+		//
+		//	assert
+		//
 		assert.deepEqual
 		(
 			{
-				[ sPeerName1 ]	: 10,
-				[ sPeerName2 ]	: 12,
-				[ sPeerName3 ]	: 22
+				[ sPeerUrl1 ]	: 10,
+				[ sPeerUrl2 ]	: 12,
+				[ sPeerUrl3 ]	: 22
 			},
 			oScuttle.digest()
 		);
@@ -44,7 +42,9 @@ describe( 'peer_state.test', () =>
 	//	scuttle new peer
 	it( 'new peers should be in result', () =>
 	{
-		let oScuttle	= new GossiperScuttle( {} );
+		let sPeerUrl1	= 'ws://127.0.0.1:60001';
+
+		let oScuttle	= new GossiperScuttle( { url : sPeerUrl1, address : 'my address 1', pfnSigner : sMessage => {} } );
 		let oResult	= oScuttle.scuttle( { 'new_peer': 12 } );
 
 		assert.deepEqual( [ 'new_peer' ], oResult.new_peers );
@@ -52,7 +52,9 @@ describe( 'peer_state.test', () =>
 
 	it( 'request all information about a new peer', () =>
 	{
-		let oScuttle	= new GossiperScuttle( {} );
+		let sPeerUrl1	= 'ws://127.0.0.1:60001';
+
+		let oScuttle	= new GossiperScuttle( { url : sPeerUrl1, address : 'my address 1', pfnSigner : sMessage => {} } );
 		let oResult 	= oScuttle.scuttle( { 'new_peer' : 12 } );
 
 		assert.deepEqual( { 'new_peer' : 0 }, oResult.requests );
@@ -61,14 +63,22 @@ describe( 'peer_state.test', () =>
 	//	scuttle deltas
 	it( 'send peer all deltas for peers we know more about', ( pfnDone ) =>
 	{
-		let oPeer1	= new GossiperPeer();
+		let sPeerUrl1	= 'ws://127.0.0.1:60001';
+		let sPeerUrl2	= 'ws://127.0.0.1:60002';
 
-		oPeer1.updateLocalValue( 'hi', 'hello', err =>
+		let oScuttle	= new GossiperScuttle( { url : sPeerUrl1, address : 'my address 1', pfnSigner : sMessage => {} } );
+		oScuttle.createPeer( sPeerUrl2, { url : sPeerUrl2, address : 'my address 2' } );
+
+		let oPeer1	= oScuttle.getPeer( sPeerUrl1 );
+		let oPeer2	= oScuttle.getPeer( sPeerUrl2 );
+
+		oPeer1.updateLocalValueAndMaxVersion( 'hi', 'hello', err1 =>
 		{
-			oPeer1.updateLocalValue( 'meh', 'goodbye', err =>
+			oPeer2.updateLocalValueAndMaxVersion( 'me', 'goodbye', err2 =>
 			{
-				let oScuttle	= new GossiperScuttle( { 'me' : oPeer1 } );
-				let oResult	= oScuttle.scuttle( { 'me': 0, 'new_peer': 12 } );
+				let oResult	= oScuttle.scuttle( { [ sPeerUrl1 ] : 0, [ sPeerUrl2 ] : 0 } );
+
+				console.log( oResult );
 
 				assert.deepEqual
 				(

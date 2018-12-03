@@ -18,7 +18,6 @@ class GossiperScuttle extends EventEmitter
 	 *	@constructor
 	 *
 	 *	@param	{object}	oOptions
-	 *	@param	{number}	oOptions.interval	- interval in milliseconds for gossiper communication
 	 *	@param	{string}	oOptions.url		- local url, 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
 	 *	@param	{string}	oOptions.address	- local super node address
 	 *	@param	{function}	oOptions.pfnSigner	- local signer function provided by super node
@@ -271,8 +270,8 @@ class GossiperScuttle extends EventEmitter
 	 *		all peers( ip:port ) known by the peer and the max version of data stored in the peer.
 	 *		for example:
 	 *		{
-	 *			'127.0.0.1:9000'	: 1,	//	max version
-	 *			'127.0.0.1:9001'	: 2,	//	max version
+	 *			'wss://127.0.0.1:9000'	: 1,	//	max version
+	 *			'wss://127.0.0.1:9001'	: 2,	//	max version
 	 *		}
 	 *	@return	{object}
 	 */
