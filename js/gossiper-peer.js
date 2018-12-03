@@ -25,7 +25,7 @@ class GossiperPeer extends EventEmitter
 	 *	@param	{object}	oOptions
 	 *	@param	{string}	[oOptions.url=]		- peer url 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
 	 *	@param	{string}	[oOptions.address=]	- super node address
-	 *	@param	{function}	[oOptions.signer=]	- signer function provided by super node
+	 *	@param	{function}	[oOptions.pfnSigner=]	- signer function provided by super node
 	 */
 	constructor( oOptions )
 	{
@@ -50,9 +50,9 @@ class GossiperPeer extends EventEmitter
 		//
 		this.m_oConfig =
 			{
-				url	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'url' ) ? oOptions.url : null,
-				address	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'address' ) ? oOptions.address : null,
-				signer	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'signer' ) ? oOptions.signer : null
+				url		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'url' ) ? oOptions.url : null,
+				address		: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'address' ) ? oOptions.address : null,
+				pfnSigner	: DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnSigner' ) ? oOptions.pfnSigner : null
 			};
 	}
 
@@ -73,7 +73,7 @@ class GossiperPeer extends EventEmitter
 	 */
 	getSigner()
 	{
-		return this.m_oConfig.signer;
+		return this.m_oConfig.pfnSigner;
 	}
 
 	/**

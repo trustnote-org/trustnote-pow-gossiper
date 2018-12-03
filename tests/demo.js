@@ -29,7 +29,7 @@ let _oGossiperOptions	= {
 	interval	: 1000,
 	url		: `ws://127.0.0.1:${ _servicePort }`,
 	address		: `super_node_address_[${ _servicePort }]`,
-	signer		: ( sMessage ) =>
+	pfnSigner	: ( sMessage ) =>
 	{
 	}
 };
