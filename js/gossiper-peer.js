@@ -317,6 +317,7 @@ class GossiperPeer extends EventEmitter
 			return pfnCallback( `call updateLocalValue with invalid sKey: ${ JSON.stringify( sKey ) }` );
 		}
 
+		this.increaseMaxVersion();
 		this.setValue( sKey, vValue, this.getMaxVersion(), err =>
 		{
 			if ( err )
@@ -324,7 +325,7 @@ class GossiperPeer extends EventEmitter
 				return pfnCallback( err );
 			}
 
-			this.increaseMaxVersion();
+			//	...
 			pfnCallback( null );
 		});
 	}

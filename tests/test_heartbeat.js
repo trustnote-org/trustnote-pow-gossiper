@@ -1,6 +1,6 @@
 const assert		= require( 'assert' );
-const { Gossiper }	= require( '../lib/gossiper' );
-const { GossiperPeer }	= require( '../lib/gossiper-peer' );
+const { Gossiper }	= require( '../js/gossiper' );
+const { GossiperPeer }	= require( '../js/gossiper-peer' );
 
 
 

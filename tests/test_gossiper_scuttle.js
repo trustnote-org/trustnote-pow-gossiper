@@ -78,13 +78,11 @@ describe( 'GossiperScuttle.test', () =>
 			{
 				let oResult	= oScuttle.scuttle( { [ sPeerUrl1 ] : 0, [ sPeerUrl2 ] : 0 } );
 
-				console.log( oResult );
-
 				assert.deepEqual
 				(
 					[
-						[ 'me', 'hi', 'hello', 1 ],
-						[ 'me', 'meh', 'goodbye', 2 ]
+						[ sPeerUrl1, 'hi', 'hello', 1 ],
+						[ sPeerUrl2, 'me', 'goodbye', 1 ]
 					],
 					oResult.deltas
 				);
