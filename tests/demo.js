@@ -44,7 +44,7 @@ function startGossiper()
 {
 	_oGossiper.on( 'peer_update', ( sPeerUrl, sKey, vValue ) =>
 	{
-	//	console.log( `))) EVENT [peer_update] :: `, sPeerUrl, sKey, vValue );
+		console.log( `))) EVENT [peer_update] :: `, sPeerUrl, sKey, vValue );
 	});
 	_oGossiper.on( 'peer_alive', ( sPeerUrl ) =>
 	{
@@ -80,7 +80,7 @@ function startGossiper()
 	(
 		() =>
 		{
-			_oGossiper.setLocalValue( `key_${ _servicePort }`, Date.now(), err =>{} );
+			_oGossiper.setLocalValue( `key_${ _servicePort }`, { now : Date.now(), say : 'yes' }, err =>{} );
 		},
 		DeUtilsCore.getRandomInt( 1000, 2000 )
 	);
@@ -144,7 +144,7 @@ function startServer()
 		},
 		onMessage	: ( oWs, sMessage ) =>
 		{
-			console.log( `SERVER >> received a message: ${ sMessage }` );
+			//console.log( `SERVER >> received a message: ${ sMessage }` );
 			onReceiveMessage( 'SERVER', oWs, sMessage );
 		},
 		onError		: ( oWs, vError ) =>
@@ -192,7 +192,7 @@ function connectToServer( sRemotePeerUrl )
 		},
 		onMessage	: ( oWs, sMessage ) =>
 		{
-			console.log( `CLIENT >> received a message : ${ sMessage }` );
+			//console.log( `CLIENT >> received a message : ${ sMessage }` );
 			onReceiveMessage( 'CLIENT', oWs, sMessage );
 		},
 		onError		: ( oWs, vError ) =>
