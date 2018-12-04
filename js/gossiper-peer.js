@@ -335,7 +335,11 @@ class GossiperPeer extends EventEmitter
 	 */
 	beatHeart()
 	{
-		this.m_nHeartbeatVersion += 1;
+		//
+		//	increase version
+		//
+		this.m_nHeartbeatVersion ++;
+
 		this.updateLocalValueAndMaxVersion( '__heartbeat__', this.m_nHeartbeatVersion, err => {} );
 		this.updateLocalValueAndMaxVersion( 'address', this.m_oConfig.address, err =>{} );
 	}

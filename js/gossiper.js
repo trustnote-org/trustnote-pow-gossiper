@@ -386,10 +386,16 @@ class Gossiper extends EventEmitter
 		//
 		//	Check health of m_oScuttle.m_oPeers
 		//
-		for ( let i in this.m_oScuttle.m_oPeers )
+		for ( let sPeerUrl in this.m_oScuttle.m_oPeers )
 		{
-			let oPeer = this.m_oScuttle.m_oPeers[ i ];
-			if ( oPeer !== this.m_oScuttle.getLocalPeer() )
+			if ( sPeerUrl === this.m_oScuttle.m_sLocalUrl )
+			{
+				//	give up checking for local peer
+				continue;
+			}
+
+			let oPeer = this.m_oScuttle.m_oPeers[ sPeerUrl ];
+			if ( oPeer )
 			{
 				oPeer.checkIfSuspect();
 			}
