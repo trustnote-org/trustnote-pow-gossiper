@@ -72,6 +72,7 @@ class GossiperDetector
 		let fIntervalAverage	= this._getIntervalAverageValue();
 		let fExponent		= -1.0 * nIntervalDiff / fIntervalAverage;
 		let fPowerValue		= Math.pow( Math.E, fExponent );
+
 		return -1.0 * ( Math.log( fPowerValue ) / Math.log( 10 ) );
 	}
 
