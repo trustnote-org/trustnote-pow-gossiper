@@ -1,3 +1,5 @@
+const _log			= require( 'npmlog' );
+
 const assert		= require( 'assert' );
 const { Gossiper }	= require( '../js/gossiper' );
 const { GossiperPeer }	= require( '../js/gossiper-peer' );
@@ -26,15 +28,16 @@ describe( 'Gossiper.heartbeat.test', () =>
 {
 	it( 'heartbeat', ( pfnDone ) =>
 	{
-		let oOption2	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50001' } );
-		let oG2		= new Gossiper( oOption2 );
-		oG2.start( {} );
+		//	create a child Gossiper
+		let oOptChild	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50001', address : 'child-address' } );
+		let oGChild	= new Gossiper( oOptChild );
+		oGChild.start( {} );
 
-		let oOptMaster	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50000' } );
+		let oOptMaster	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50000', address : 'master-address' } );
 		let oGMaster	= new Gossiper( oOptMaster );
-		oGMaster.addOrUpdatePeer( oOption2.url, oOption2 );
-		oGMaster.start( {} );
 
+		oGMaster.addOrUpdatePeer( oOptChild.url, oOptChild );
+		oGMaster.start( {} );
 
 		//
 		//	...
@@ -42,51 +45,43 @@ describe( 'Gossiper.heartbeat.test', () =>
 		let bAliveEmitted	= false;
 		let bDeadEmitted	= false;
 
-		oG3.on( 'peer_alive', ( sPeerUrl ) =>
+		oGMaster.on( 'peer_alive', ( sPeerUrl ) =>
 		{
-			console.log( `peer_alive :: ${ sPeerUrl }` );
+			_log.info( 'test_heartbeat', `))) peer_alive :: ${ sPeerUrl }` );
 
 			bAliveEmitted = true;
-			assert.equal( oOption2.url, sPeerUrl );
+			assert.equal( oOptChild.url, sPeerUrl );
 		});
-		oG3.on( 'peer_failed', ( sPeerUrl ) =>
+		oGMaster.on( 'peer_failed', ( sPeerUrl ) =>
 		{
-			console.log( `peer_failed :: ${ sPeerUrl }` );
+			_log.info( 'test_heartbeat', `))) peer_failed :: ${ sPeerUrl }` );
 
 			bDeadEmitted = true;
-			assert.equal( oOption2.url, sPeerUrl );
+			assert.equal( oOptChild.url, sPeerUrl );
 		});
 
+		//
+		//	step 1
+		//	mock a message arrived from child peer
+		//
+		oGMaster.m_oScuttle.getPeer( oOptChild.url ).m_oDetector.arrival();
 
-		//	...
+		//
+		//	step 2
+		//
 		setTimeout
 		(
 			() =>
 			{
-				console.log( "stopping peer 2" );
-				oG2.stop();
+				console.log( "mock a message arrived from child peer after 40000 seconds" );
+				oGMaster.m_oScuttle.getPeer( oOptChild.url ).m_oDetector.arrival();
 			},
-			1000
+			40000
 		);
-
 		setTimeout
 		(
 			() =>
 			{
-				console.log( "starting peer 2" );
-				oG2.start( {} );
-			},
-			4500
-		);
-
-		setTimeout
-		(
-			() =>
-			{
-				oG2.stop();
-				oGMaster.stop();
-				oG3.stop();
-
 				assert.ok( bAliveEmitted );
 				assert.ok( bDeadEmitted );
 
@@ -96,82 +91,4 @@ describe( 'Gossiper.heartbeat.test', () =>
 			55000
 		);
 	});
-	// it( 'heartbeat', ( pfnDone ) =>
-	// {
-	// 	let oOption2	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50001' } );
-	// 	let oG2		= new Gossiper( oOption2 );
-	// 	oG2.start( {} );
-	//
-	// 	let oOption3	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50002' } );
-	// 	let oG3		= new Gossiper( oOption3 );
-	// 	oG3.start( {} );
-	//
-	// 	let oOptMaster	= Object.assign( {}, _GossiperOptionsMaster, { url : 'ws://127.0.0.1:50000' } );
-	// 	let oGMaster	= new Gossiper( oOptMaster );
-	// 	oGMaster.addOrUpdatePeer( oOption2.url, oOption2 );
-	// 	oGMaster.addOrUpdatePeer( oOption3.url, oOption3 );
-	//
-	// 	oGMaster.start( {} );
-	//
-	//
-	// 	//
-	// 	//	...
-	// 	//
-	// 	let bAliveEmitted	= false;
-	// 	let bDeadEmitted	= false;
-	//
-	// 	oG3.on( 'peer_alive', ( sPeerUrl ) =>
-	// 	{
-	// 		console.log( `peer_alive :: ${ sPeerUrl }` );
-	//
-	// 		bAliveEmitted = true;
-	// 		assert.equal( oOption2.url, sPeerUrl );
-	// 	});
-	// 	oG3.on( 'peer_failed', ( sPeerUrl ) =>
-	// 	{
-	// 		console.log( `peer_failed :: ${ sPeerUrl }` );
-	//
-	// 		bDeadEmitted = true;
-	// 		assert.equal( oOption2.url, sPeerUrl );
-	// 	});
-	//
-	//
-	// 	//	...
-	// 	setTimeout
-	// 	(
-	// 		() =>
-	// 		{
-	// 			console.log( "stopping peer 2" );
-	// 			oG2.stop();
-	// 		},
-	// 		1000
-	// 	);
-	//
-	// 	setTimeout
-	// 	(
-	// 		() =>
-	// 		{
-	// 			console.log( "starting peer 2" );
-	// 			oG2.start( {} );
-	// 		},
-	// 		4500
-	// 	);
-	//
-	// 	setTimeout
-	// 	(
-	// 		() =>
-	// 		{
-	// 			oG2.stop();
-	// 			oGMaster.stop();
-	// 			oG3.stop();
-	//
-	// 			assert.ok( bAliveEmitted );
-	// 			assert.ok( bDeadEmitted );
-	//
-	// 			//	...
-	// 			pfnDone();
-	// 		},
-	// 		55000
-	// 	);
-	// });
 });

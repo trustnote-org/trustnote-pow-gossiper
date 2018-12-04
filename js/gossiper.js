@@ -1,4 +1,5 @@
 const _fs			= require( 'fs' );
+const _log			= require( 'npmlog' );
 const { EventEmitter }		= require( 'events' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 
@@ -80,8 +81,8 @@ class Gossiper extends EventEmitter
 		//
 		//	start heartbeat and gossip
 		//
-		this._startHeartbeat();
-		this._startGossip();
+		this._startHeartbeatLoop();
+		this._startGossipLoop();
 	}
 
 	/**
@@ -268,7 +269,7 @@ class Gossiper extends EventEmitter
 	 * 	start heartbeat
 	 *	@private
 	 */
-	_startHeartbeat()
+	_startHeartbeatLoop()
 	{
 		this.m_nHeartBeatTimer = setTimeout
 		(
@@ -280,7 +281,8 @@ class Gossiper extends EventEmitter
 					oLocalPeer.beatHeart();
 				}
 
-				this._startHeartbeat();
+				//	the the call as a loop
+				this._startHeartbeatLoop();
 			},
 			this.m_nInterval
 		);
@@ -290,7 +292,7 @@ class Gossiper extends EventEmitter
 	 * 	start gossiper
 	 *	@private
 	 */
-	_startGossip()
+	_startGossipLoop()
 	{
 		this.m_nGossipTimer = setTimeout
 		(
@@ -298,7 +300,9 @@ class Gossiper extends EventEmitter
 			{
 				this._printDebug();
 				this._gossip();
-				this._startGossip();
+
+				//	the the call as a loop
+				this._startGossipLoop();
 			},
 			this.m_nInterval
 		);
@@ -346,6 +350,7 @@ class Gossiper extends EventEmitter
 	 */
 	_gossip()
 	{
+		//	...
 		let arrLivePeerUrls	= this.m_oScuttle.getLivePeerUrls();
 		let arrDeadPeerUrls	= this.m_oScuttle.getDeadPeerUrls();
 		let sLivePeerUrl	= null;
@@ -390,22 +395,22 @@ class Gossiper extends EventEmitter
 		{
 			if ( sPeerUrl === this.m_oScuttle.m_sLocalUrl )
 			{
-				//	give up checking for local peer
+				//	ignore checking for local peer
 				continue;
 			}
 
+			//_log.info( 'gossiper', 'will checkIfSuspect for peer %s', sPeerUrl );
 			let oPeer = this.m_oScuttle.m_oPeers[ sPeerUrl ];
 			if ( oPeer )
 			{
 				oPeer.checkIfSuspect();
 			}
 		}
-
-		//console.log( `${ new Date().toString() } :: gossip live: ${ arrLivePeerUrls.length }, dead: ${ arrDeadPeerUrls.length }` );
 	}
 
 	/**
 	 *	choose random
+	 *
 	 *	@param	{Array}	arrPeers
 	 *	@return {string|null}
 	 */

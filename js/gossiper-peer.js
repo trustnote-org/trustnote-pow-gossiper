@@ -1,3 +1,5 @@
+const _log			= require( 'npmlog' );
+
 const { EventEmitter }		= require( 'events' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
@@ -155,7 +157,9 @@ class GossiperPeer extends EventEmitter
 		//
 		//	milliseconds since Jan 1, 1970, 00:00:00.000 GMT
 		//
-		let nPhi = this.m_oDetector.phi( new Date().getTime() );
+		let nPhi = this.m_oDetector.getPhi();
+
+		//_log.info( 'gossiper-peer', 'checking Suspect for peer %s, ( %d, %d )', this.getUrl(), nPhi, MAX_PHI );
 
 		if ( nPhi > MAX_PHI )
 		{
@@ -288,7 +292,7 @@ class GossiperPeer extends EventEmitter
 
 				if ( '__heartbeat__' === sKey )
 				{
-					this.m_oDetector.add( new Date().getTime() );
+					this.m_oDetector.arrival();
 				}
 
 				//	yes, updated successfully

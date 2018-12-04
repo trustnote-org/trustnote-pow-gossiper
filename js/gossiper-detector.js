@@ -1,3 +1,6 @@
+const _log			= require( 'npmlog' );
+
+
 /**
  * 	@constants
  */
@@ -19,11 +22,11 @@ class GossiperDetector
 	}
 
 	/**
-	 *	add
-	 *	@param	{number}	nArrivalTime
+	 *	arrival
 	 */
-	add( nArrivalTime )
+	arrival()
 	{
+		let nArrivalTime	= new Date().getTime();
 		let nInterval;
 
 		if ( undefined === this.m_nLastTime )
@@ -53,17 +56,22 @@ class GossiperDetector
 
 
 	/**
-	 *	phi
-	 *	@param	{number}	nCurrentTime
+	 *	get phi
+	 *
 	 *	@return	{number}
 	 */
-	phi( nCurrentTime )
+	getPhi()
 	{
+ 	 	if ( ! this.m_nLastTime )
+		{
+			return 0;
+		}
+
+		let nCurrentTime	= new Date().getTime();
 		let nIntervalDiff	= nCurrentTime - this.m_nLastTime;
 		let fIntervalAverage	= this._getIntervalAverageValue();
-		let fExp		= -1.0 * nIntervalDiff / fIntervalAverage;
-		let fPowerValue		= Math.pow( Math.E, fExp );
-
+		let fExponent		= -1.0 * nIntervalDiff / fIntervalAverage;
+		let fPowerValue		= Math.pow( Math.E, fExponent );
 		return -1.0 * ( Math.log( fPowerValue ) / Math.log( 10 ) );
 	}
 
@@ -75,6 +83,12 @@ class GossiperDetector
 	 */
 	_getIntervalAverageValue()
 	{
+		if ( 0 === this.m_arrIntervalList.length )
+		{
+			return 0;
+		}
+
+		//	...
 		let nSum = this.m_arrIntervalList.reduce
 		(
 			( nAccumulator, nCurrentValue ) =>
