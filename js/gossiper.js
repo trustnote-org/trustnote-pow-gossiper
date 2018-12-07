@@ -45,16 +45,6 @@ class Gossiper extends EventEmitter
 		{
 			throw new Error( `construct Gossiper with invalid oOptions, require a plain object.` );
 		}
-		if ( ! DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnSigner' ) ||
-			! DeUtilsCore.isFunction( oOptions.pfnSigner ) )
-		{
-			throw new Error( `construct Gossiper with invalid oOptions.pfnSigner, require a function address.` );
-		}
-		if ( ! DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnVerify' ) ||
-			! DeUtilsCore.isFunction( oOptions.pfnVerify ) )
-		{
-			throw new Error( `construct Gossiper with invalid oOptions.pfnVerify, require a function address.` );
-		}
 
 		//	...
 		this.m_nInterval	= DeUtilsCore.isPlainObjectWithKeys( oOptions, 'interval' ) ? oOptions.interval : DEFAULT_INTERVAL;
@@ -696,7 +686,10 @@ class Gossiper extends EventEmitter
 		//
 		//	assemble message with Gossiper format
 		//
-		let sMessage = JSON.stringify( [ 'gossiper', oMessage ] );
+		let oJson	= Object.assign( {}, oMessage, {} );
+
+		oJson.sig	= oOptions.pfnSigner();
+		let sMessage	= JSON.stringify( [ 'gossiper', oMessage ] );
 		oSocket.send( sMessage );
 
 		//	...
