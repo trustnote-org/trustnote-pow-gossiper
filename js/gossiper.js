@@ -686,9 +686,8 @@ class Gossiper extends EventEmitter
 		//
 		//	assemble message with Gossiper format
 		//
-		let oJson	= Object.assign( {}, oMessage, {} );
-
-		oJson.sig	= oOptions.pfnSigner();
+		//let oJson	= Object.assign( {}, oMessage, {} );
+		//oJson.sig	= oOptions.pfnSigner();
 		let sMessage	= JSON.stringify( [ 'gossiper', oMessage ] );
 		oSocket.send( sMessage );
 
