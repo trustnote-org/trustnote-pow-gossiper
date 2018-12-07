@@ -32,11 +32,29 @@ class Gossiper extends EventEmitter
 	 *	@param	{number}	oOptions.interval	- interval in milliseconds for gossiper communication
 	 *	@param	{string}	oOptions.url		- local url, 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
 	 *	@param	{string}	oOptions.address	- local super node address
-	 *	@param	{function}	oOptions.pfnSigner	- local signer function provided by super node
+	 *	@param	{function}	oOptions.pfnSigner( oJsonMessage, pfnCallback )
+	 *					- local signer function provided by super node
+	 *	@param	{function}	oOptions.pfnVerify( oJsonMessage, sAddress, sSignature, pfnCallback )
+	 *					- local signer function provided by super node
 	 */
 	constructor( oOptions )
 	{
 		super();
+
+		if ( ! DeUtilsCore.isPlainObject( oOptions ) )
+		{
+			throw new Error( `construct Gossiper with invalid oOptions, require a plain object.` );
+		}
+		if ( ! DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnSigner' ) ||
+			! DeUtilsCore.isFunction( oOptions.pfnSigner ) )
+		{
+			throw new Error( `construct Gossiper with invalid oOptions.pfnSigner, require a function address.` );
+		}
+		if ( ! DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnVerify' ) ||
+			! DeUtilsCore.isFunction( oOptions.pfnVerify ) )
+		{
+			throw new Error( `construct Gossiper with invalid oOptions.pfnVerify, require a function address.` );
+		}
 
 		//	...
 		this.m_nInterval	= DeUtilsCore.isPlainObjectWithKeys( oOptions, 'interval' ) ? oOptions.interval : DEFAULT_INTERVAL;

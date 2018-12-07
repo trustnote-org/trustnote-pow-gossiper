@@ -29,8 +29,13 @@ let _oGossiperOptions	= {
 	interval	: 1000,
 	url		: `ws://127.0.0.1:${ _servicePort }`,
 	address		: `super_node_address_[${ _servicePort }]`,
-	pfnSigner	: ( sMessage ) =>
+	pfnSigner	: ( oJsonMessage, pfnCallback ) =>
 	{
+		return pfnCallback( null, 'ffOe0whco7/QFJ3ttbdmq4t1QImqizd3G+DlXC/XWltrlv8CZo6jJtUWMpHsGXoA0gtDWZk6RVy0oLEMf7FBCw==' );
+	},
+	pfnVerify	: ( oJsonMessage, sAddress, sSignature, pfnCallback ) =>
+	{
+		return pfnCallback( null );
 	}
 };
 let _oGossiper	= new Gossiper( _oGossiperOptions );
