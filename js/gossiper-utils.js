@@ -8,8 +8,8 @@ const { GossiperReservedKeys }	= require( './gossiper-constants' );
 
 
 /**
- * 	@class GossiperScuttle
- *	@type {GossiperScuttle}
+ * 	@class GossiperUtils
+ *	@type {GossiperUtils}
  */
 class GossiperUtils
 {

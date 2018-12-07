@@ -5,6 +5,7 @@ const { DeUtilsCore }		= require( 'deutils.js' );
 
 const { GossiperRouter }	= require( './gossiper-router' );
 const { GossiperScuttle }	= require( './gossiper-scuttle' );
+const { GossiperValidation }	= require( './gossiper-validation' );
 const { GossiperUtils }		= require( './gossiper-utils' );
 const { GossiperMessages }	= require( './gossiper-constants' );
 const { GossiperEvents }	= require( './gossiper-constants' );
@@ -58,6 +59,11 @@ class Gossiper extends EventEmitter
 		//	Scuttle
 		//
 		this.m_oScuttle		= new GossiperScuttle( oOptions );
+
+		//
+		//
+		//
+		this.m_oValidation	= new GossiperValidation( oOptions );
 	}
 
 
@@ -686,13 +692,19 @@ class Gossiper extends EventEmitter
 		//
 		//	assemble message with Gossiper format
 		//
-		//let oJson	= Object.assign( {}, oMessage, {} );
-		//oJson.sig	= oOptions.pfnSigner();
-		let sMessage	= JSON.stringify( [ 'gossiper', oMessage ] );
-		oSocket.send( sMessage );
+		oMessage = Object.assign( {}, oMessage, { sig : null } );
+		this.m_oValidation.sign( oMessage, ( err, sSignature ) =>
+		{
+			let sMessage	= null;
 
-		//	...
-		this._emitInfoLog( `SENDING ${ sMessage } to ${ oSocket.peer }.` );
+			//	...
+			oMessage.sig	= sSignature;
+			sMessage	= JSON.stringify( [ 'gossiper', oMessage ] );
+			oSocket.send( sMessage );
+
+			//	...
+			this._emitInfoLog( `SENDING ${ sMessage } to ${ oSocket.peer }.` );
+		});
 	}
 
 
