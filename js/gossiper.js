@@ -1,5 +1,4 @@
 const _fs			= require( 'fs' );
-const _log			= require( 'npmlog' );
 const { EventEmitter }		= require( 'events' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 
@@ -7,6 +6,7 @@ const { GossiperRouter }	= require( './gossiper-router' );
 const { GossiperScuttle }	= require( './gossiper-scuttle' );
 const { GossiperValidation }	= require( './gossiper-validation' );
 const { GossiperUtils }		= require( './gossiper-utils' );
+const { GossiperLog }		= require( './gossiper-log' );
 const { GossiperMessages }	= require( './gossiper-constants' );
 const { GossiperEvents }	= require( './gossiper-constants' );
 
@@ -349,7 +349,7 @@ class Gossiper extends EventEmitter
 		{
 			if ( err )
 			{
-				return console.error( err );
+				return GossiperLog.error( err );
 			}
 		});
 		////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 const { DeUtilsCore }	= require( 'deutils.js' );
 const { Gossiper }	= require( '../js/gossiper.js' );
+const { GossiperLog }	= require( '../js/gossiper-log.js' );
 const _ws_service	= require( '../js/gossiper-ws.js' );
 
 
@@ -49,19 +50,19 @@ function startGossiper()
 {
 	_oGossiper.on( 'peer_update', ( sPeerUrl, sKey, vValue ) =>
 	{
-		console.log( `))) EVENT [peer_update] :: `, sPeerUrl, sKey, vValue );
+		GossiperLog.info( `))) EVENT [peer_update] :: ${ sPeerUrl }, ${ sKey }, ${ vValue }` );
 	});
 	_oGossiper.on( 'peer_alive', ( sPeerUrl ) =>
 	{
-	//	console.log( `))) EVENT [peer_alive] :: `, sPeerUrl );
+		GossiperLog.info( `))) EVENT [peer_alive] :: ${ sPeerUrl }` );
 	});
 	_oGossiper.on( 'peer_failed', ( sPeerUrl ) =>
 	{
-	//	console.log( `))) EVENT [peer_failed] :: `, sPeerUrl );
+		GossiperLog.info( `))) EVENT [peer_failed] :: ${ sPeerUrl }` );
 	});
 	_oGossiper.on( 'new_peer', ( sPeerUrl ) =>
 	{
-		console.log( `))) EVENT [new_peer] :: `, sPeerUrl );
+		GossiperLog.info( `))) EVENT [new_peer] :: ${ sPeerUrl }` );
 		if ( sPeerUrl !== _oGossiperOptions.url &&
 			! _oGossiper.m_oRouter.getSocket( sPeerUrl ) )
 		{
@@ -105,12 +106,12 @@ function onReceiveMessage( sSideType, oWs, sMessage )
 		}
 		else
 		{
-			console.error( `${ sSideType } >> invalid message/JSON: ${ sMessage }` );
+			GossiperLog.error( `${ sSideType } >> invalid message/JSON: ${ sMessage }` );
 		}
 	}
 	catch( e )
 	{
-		console.error( `${ sSideType } >> onReceivedMessage occurred exception: ${ JSON.stringify( e ) }` );
+		GossiperLog.error( `${ sSideType } >> onReceivedMessage occurred exception: ${ JSON.stringify( e ) }` );
 	}
 }
 
@@ -127,25 +128,20 @@ function startServer()
 		{
 			if ( err )
 			{
-				return console.error( err );
+				return GossiperLog.error( err );
 			}
 
-			console.log( `SERVER >> socket server started:${ oWsServer }.` );
-			console.log(
-				oWsServer.options.host,
-				oWsServer.options.port,
-				oWsServer.options.handleProtocols,
-				oWsServer.options.path );
+			GossiperLog.info( `SERVER >> socket server started: ${ oWsServer.url }. host: ${ oWsServer.options.host }, port: ${ oWsServer.options.port }` );
 		},
 		onConnection	: ( err, oWs ) =>
 		{
 			if ( err )
 			{
-				return console.error( err );
+				return GossiperLog.error( err );
 			}
 
-			console.log( `SERVER >> a new client connected in.` );
-			console.log( `SERVER >> oWs.url : ${ oWs.url }` );
+			GossiperLog.info( `SERVER >> a new client connected in.` );
+			GossiperLog.info( `SERVER >> oWs.url : ${ oWs.url }` );
 		},
 		onMessage	: ( oWs, sMessage ) =>
 		{
@@ -154,11 +150,11 @@ function startServer()
 		},
 		onError		: ( oWs, vError ) =>
 		{
-			console.error( `SERVER >> occurred an error: `, vError );
+			GossiperLog.error( `SERVER >> occurred an error: ${ JSON.stringify( vError ) }` );
 		},
 		onClose		: ( oWs, sReason ) =>
 		{
-			console.log( `SERVER >> socket was closed(${ sReason })` );
+			GossiperLog.info( `SERVER >> socket was closed(${ sReason })` );
 		}
 	};
 	_ws_service.server.createServer( oServerOptions );
@@ -172,7 +168,7 @@ function connectToServer( sRemotePeerUrl )
 {
 	if ( _oGossiperOptions.url === sRemotePeerUrl )
 	{
-		console.log( `CAN'T CONNECT TO SELF.` );
+		GossiperLog.error( `CAN'T CONNECT TO SELF.` );
 		return false;
 	}
 
@@ -182,10 +178,10 @@ function connectToServer( sRemotePeerUrl )
 		{
 			if ( err )
 			{
-				return console.error( err );
+				return GossiperLog.error( err );
 			}
 
-			console.log( `CLIENT >> we have connected to ${ oWs.host } successfully.` );
+			GossiperLog.info( `CLIENT >> we have connected to ${ oWs.host } successfully.` );
 
 			//
 			//	update the remote socket
@@ -202,7 +198,7 @@ function connectToServer( sRemotePeerUrl )
 		},
 		onError		: ( oWs, vError ) =>
 		{
-			console.error( `CLIENT >> error from server ${ oClientOptions.minerGateway }: `, vError );
+			GossiperLog.error( `CLIENT >> error from server ${ oClientOptions.minerGateway }: ${ JSON.stringify( vError ) }` );
 
 			//	...
 			setTimeout( () =>
@@ -213,7 +209,7 @@ function connectToServer( sRemotePeerUrl )
 		},
 		onClose		: ( oWs, sReason ) =>
 		{
-			console.log( `CLIENT >> socket was closed(${ sReason })` );
+			GossiperLog.info( `CLIENT >> socket was closed(${ sReason })` );
 		}
 	};
 	_ws_service.client.connectToServer( oClientOptions );
@@ -226,10 +222,14 @@ function connectToServer( sRemotePeerUrl )
 
 
 /**
- *	start
+ *	@start
  */
 startGossiper();
 startServer();
+
+/**
+ * 	connect to seed servers
+ */
 for ( let nIndex in _seed_servers )
 {
 	let sPeerSeed	= _seed_servers[ nIndex ];

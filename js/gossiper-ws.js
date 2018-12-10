@@ -1,3 +1,5 @@
+const { GossiperLog }	= require( './gossiper-log' );
+
 /**
  *	@boss	XING
  */
@@ -79,7 +81,7 @@ function createServer( oOptions )
 	sServerKey = `*.${ oOptions.port }`;
 	if ( _oCacheRunningServers.hasOwnProperty( sServerKey ) )
 	{
-		console.log( `GOSSIPER-WS }} server ${ sServerKey } already running.` );
+		GossiperLog.info( `GOSSIPER-WS }} server ${ sServerKey } already running.` );
 		oOptions.onStart( null, _oCacheRunningServers[ sServerKey ] );
 		return false;
 	}
@@ -135,7 +137,7 @@ function createServer( oOptions )
 		oWsClient.last_ts	= Date.now();
 
 		//	...
-		console.log( `GOSSIPER-WS }} got connection from ${ oWsClient.peer }, host ${ oWsClient.host }` );
+		GossiperLog.info( `GOSSIPER-WS }} got connection from ${ oWsClient.peer }, host ${ oWsClient.host }` );
 
 		//
 		//	callback saying there was a client connected
@@ -172,7 +174,7 @@ function createServer( oOptions )
 	_oCacheRunningServers[ sServerKey ] = oWsServer;
 
 	//	...
-	console.log( `new WebSocket server(${ sServerKey }) running at port ${ oOptions.port }` );
+	GossiperLog.info( `new WebSocket server(${ sServerKey }) running at port ${ oOptions.port }` );
 }
 
 
@@ -253,7 +255,7 @@ function connectToServer( oOptions )
 			//	May happen if we abondoned a driver attempt after timeout
 			// 		but it still succeeded while we opened another driver
 			//
-			console.log( `GOSSIPER-WS }} already have a connection to ${ sUrl }, will keep the old one and close the duplicate` );
+			GossiperLog.info( `GOSSIPER-WS }} already have a connection to ${ sUrl }, will keep the old one and close the duplicate` );
 			oWs.close( 1000, 'duplicate driver' );
 
 			//	...
@@ -269,7 +271,7 @@ function connectToServer( oOptions )
 		oWs.last_ts	= Date.now();			//	record the last timestamp while we connected to this peer
 
 		//	...
-		console.log( `GOSSIPER-WS }} connected to ${ sUrl }, host ${ oWs.host }` );
+		GossiperLog.info( `GOSSIPER-WS }} connected to ${ sUrl }, host ${ oWs.host }` );
 
 		//
 		//	cache new socket handle
@@ -315,28 +317,28 @@ function sendMessage( oWs, sCommand, jsonMessage )
 {
 	if ( ! oWs )
 	{
-		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid oWs.` );
+		GossiperLog.info( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid oWs.` );
 		return false;
 	}
 	if ( oWs.OPEN !== oWs.readyState )
 	{
-		console.log( `GOSSIPER-WS }} ${ __filename } :: readyState=${ oWs.readyState } on peer ${ oWs.peer }, will not send message ['${ sCommand }',${ JSON.stringify( jsonMessage ) }]` );
+		GossiperLog.info( `GOSSIPER-WS }} ${ __filename } :: readyState=${ oWs.readyState } on peer ${ oWs.peer }, will not send message ['${ sCommand }',${ JSON.stringify( jsonMessage ) }]` );
 		return false;
 	}
 	if ( 'string' !== typeof sCommand )
 	{
-		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid sCommand.` );
+		GossiperLog.info( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid sCommand.` );
 		return false;
 	}
 	if ( 'object' !== typeof jsonMessage )
 	{
-		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid jsonMessage.` );
+		GossiperLog.info( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid jsonMessage.` );
 		return false;
 	}
 
 	let sContent	= JSON.stringify( [ sCommand, jsonMessage ] );
 
-	console.log( `GOSSIPER-WS }} SENDING ${ sContent } to ${ oWs.peer }` );
+	GossiperLog.info( `GOSSIPER-WS }} SENDING ${ sContent } to ${ oWs.peer }` );
 	oWs.send( sContent );
 
 	//	...
@@ -530,15 +532,23 @@ function _isValidResourceAddress( sAddress )
 
 
 
+
+
+
 /**
  *	@exports
  */
-module.exports.client	= {
-	connectToServer : connectToServer
-};
-module.exports.server	= {
-	createServer : createServer
-};
+module.exports	=
+{
+	client	:
+	{
+		connectToServer: connectToServer
+	},
+	server	:
+	{
+		createServer : createServer
+	},
 
-module.exports.sendMessage	= sendMessage;
-module.exports.sendMessageOnce	= sendMessageOnce;
+	sendMessage	: sendMessage,
+	sendMessageOnce	: sendMessageOnce,
+};
