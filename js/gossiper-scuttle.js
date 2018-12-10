@@ -20,7 +20,6 @@ class GossiperScuttle extends EventEmitter
 	 *	@param	{object}	oOptions
 	 *	@param	{string}	oOptions.url		- local url, 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
 	 *	@param	{string}	oOptions.address	- local super node address
-	 *	@param	{function}	oOptions.pfnSigner	- local signer function provided by super node
 	 */
 	constructor( oOptions )
 	{

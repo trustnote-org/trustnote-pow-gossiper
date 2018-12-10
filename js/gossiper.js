@@ -33,10 +33,7 @@ class Gossiper extends EventEmitter
 	 *	@param	{number}	oOptions.interval	- interval in milliseconds for gossiper communication
 	 *	@param	{string}	oOptions.url		- local url, 'wss://127.0.0.1:6000', 'udp|tcp...://127.0.0.1:6000' or undefined
 	 *	@param	{string}	oOptions.address	- local super node address
-	 *	@param	{function}	oOptions.pfnSigner( oJsonMessage, pfnCallback )
-	 *					- local signer function provided by super node
-	 *	@param	{function}	oOptions.pfnVerify( oJsonMessage, sAddress, sSignature, pfnCallback )
-	 *					- local signer function provided by super node
+	 *	@param	{function}	oOptions.validator	- validator
 	 */
 	constructor( oOptions )
 	{
@@ -61,7 +58,7 @@ class Gossiper extends EventEmitter
 		this.m_oScuttle		= new GossiperScuttle( oOptions );
 
 		//
-		//
+		//	Validation
 		//
 		this.m_oValidation	= new GossiperValidation( oOptions );
 	}

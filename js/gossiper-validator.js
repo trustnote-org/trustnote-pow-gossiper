@@ -10,17 +10,10 @@ const DEFAULT_MNEMONIC	= 'describe lock hat defy fever kiss spoon hint dinosaur 
 
 
 
-
-// interface IGossiperSigner
-// {
-//
-// }
-
-
 /**
- * 	@class GossiperSigner
+ * 	@class GossiperValidator
  */
-class GossiperSigner
+class GossiperValidator
 {
 	/**
 	 *	@constructor
@@ -130,5 +123,5 @@ class GossiperSigner
  */
 module.exports	=
 {
-	GossiperSigner	: GossiperSigner
+	GossiperValidator	: GossiperValidator
 };
