@@ -12,7 +12,6 @@ let _seed_servers	= [
 	'ws://127.0.0.1:50000',
 ];
 
-
 /**
  * 	service port
  */
@@ -22,11 +21,11 @@ if ( Array.isArray( process.argv ) && process.argv.length >= 3 )
 	_servicePort	= parseInt( process.argv[ 2 ] );
 }
 
-
 /**
  *	Gossiper options
  */
-let _oGossiperOptions	= {
+let _oGossiperOptions	=
+{
 	interval	: 1000,
 	url		: `ws://127.0.0.1:${ _servicePort }`,
 	address		: `super_node_address_[${ _servicePort }]`,
@@ -43,10 +42,15 @@ let _oGossiper	= new Gossiper( _oGossiperOptions );
 
 
 
+
+
 /**
- * 	Gossiper
+ *	Gossiper
+ *
+ * 	@param	{function}	pfnCallback( err )
+ * 	@return	{void}
  */
-function startGossiper()
+function startGossiper( pfnCallback )
 {
 	_oGossiper.on( 'peer_update', ( sPeerUrl, sKey, vValue ) =>
 	{
@@ -78,18 +82,8 @@ function startGossiper()
 	//
 	_oGossiper.start( oSeeds );
 
-
-	//
-	//	update data
-	//
-	setInterval
-	(
-		() =>
-		{
-			_oGossiper.setLocalValue( `key_${ _servicePort }`, { now : Date.now(), say : 'yes' }, err =>{} );
-		},
-		DeUtilsCore.getRandomInt( 1000, 2000 )
-	);
+	//	...
+	pfnCallback( null );
 }
 
 function onReceiveMessage( sSideType, oWs, sMessage )
@@ -118,8 +112,11 @@ function onReceiveMessage( sSideType, oWs, sMessage )
 
 /**
  *	Server
+ *
+ * 	@param	{function}	pfnCallback( err, oWsServer )
+ * 	@return	{void}
  */
-function startServer()
+function startServer( pfnCallback )
 {
 	const oServerOptions	= {
 		url		: _oGossiperOptions.url,
@@ -132,6 +129,7 @@ function startServer()
 			}
 
 			GossiperLog.info( `SERVER >> socket server started: ${ oWsServer.url }. host: ${ oWsServer.options.host }, port: ${ oWsServer.options.port }` );
+			pfnCallback( err, oWsServer );
 		},
 		onConnection	: ( err, oWs ) =>
 		{
@@ -172,7 +170,8 @@ function connectToServer( sRemotePeerUrl )
 		return false;
 	}
 
-	const oClientOptions	= {
+	const oClientOptions	=
+	{
 		minerGateway	: sRemotePeerUrl,
 		onOpen		: ( err, oWs ) =>
 		{
@@ -224,14 +223,45 @@ function connectToServer( sRemotePeerUrl )
 /**
  *	@start
  */
-startGossiper();
-startServer();
-
-/**
- * 	connect to seed servers
- */
-for ( let nIndex in _seed_servers )
+startServer( ( err, oWsServer ) =>
 {
-	let sPeerSeed	= _seed_servers[ nIndex ];
-	connectToServer( sPeerSeed );
-}
+	if ( err )
+	{
+		return GossiperLog.error( err );
+	}
+
+	/**
+	 * 	start Gossiper
+	 */
+	startGossiper( err =>
+	{
+		if ( err )
+		{
+			return GossiperLog.error( err );
+		}
+
+		//
+		//	update data
+		//
+		setInterval
+		(
+			() =>
+			{
+				_oGossiper.setLocalValue( `key_${ _servicePort }`, { now : Date.now(), say : 'yes' }, err =>{} );
+			},
+			DeUtilsCore.getRandomInt( 3000, 5000 )
+		);
+
+
+		/**
+		 * 	connect to seed servers
+		 */
+		for ( let nIndex in _seed_servers )
+		{
+			let sPeerSeed	= _seed_servers[ nIndex ];
+			connectToServer( sPeerSeed );
+		}
+	});
+});
+
+

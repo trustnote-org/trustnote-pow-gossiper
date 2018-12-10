@@ -1,4 +1,5 @@
 const { DeUtilsCore }		= require( 'deutils.js' );
+const { GossiperSigner }	= require( './gossiper-signer' );
 
 
 
@@ -12,49 +13,66 @@ class GossiperValidation
 	 *
 	 *	@param	{object}	oOptions
 	 *	@param	{function}	oOptions.pfnSigner( oJsonMessage, pfnCallback )
-	 *					- local signer function provided by super node
 	 *	@param	{function}	oOptions.pfnVerify( oJsonMessage, sAddress, sSignature, pfnCallback )
-	 *					- local verify function provided by super node
+	 *
+	 *	@description
+	 *
+	 * 	oOptions.pfnSigner( oJsonMessage, pfnCallback )
+	 *		- local signer function provided by super node
+	 *
+	 *	oOptions.pfnVerify( oJsonMessage, sAddress, sSignature, pfnCallback )
+	 *		- local verify function provided by super node
 	 */
 	constructor( oOptions )
 	{
-		this.m_pfnSigner	= DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnSigner' ) ? oOptions.pfnSigner : null;
-		this.m_pfnVerifier	= DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnVerify' ) ? oOptions.pfnVerify : null;
-	}
+		//
+		//	create new instance GossiperSigner
+		//
+		this.m_oGossiperSigner		= new GossiperSigner();
 
+		//
+		//	assign default signer and verifier
+		//
+		this.m_pfnSigner	= this.m_oGossiperSigner.sign;
+		this.m_pfnVerifier	= this.m_oGossiperSigner.verify;
+
+		//
+		//	updates signer and verifier, if they are both correct.
+		//
+		if ( DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnSigner' ) &&
+			DeUtilsCore.isFunction( oOptions.pfnSigner ) &&
+			DeUtilsCore.isPlainObjectWithKeys( oOptions, 'pfnVerify' ) &&
+			DeUtilsCore.isFunction( oOptions.pfnVerify ) )
+		{
+			this.m_pfnSigner	= oOptions.pfnSigner;
+			this.m_pfnVerifier	= oOptions.pfnVerify;
+		}
+	}
 
 	/**
 	 * 	update signer address
 	 *
 	 *	@param	{function}	pfnSigner
+	 *	@param	{function}	pfnVerifier
 	 *	@param	{function}	pfnCallback( err )
 	 *	@return	{*}
 	 */
-	updateSigner( pfnSigner, pfnCallback )
+	updateSignerAndVerifier( pfnSigner, pfnVerifier, pfnCallback )
 	{
 		if ( ! DeUtilsCore.isFunction( pfnSigner ) )
 		{
-			return pfnCallback( `call updateSigner with invalid pfnSigner: ${ JSON.stringify( pfnSigner ) }` );
+			return pfnCallback( `call updateSignerAndVerifier with invalid pfnSigner: ${ JSON.stringify( pfnSigner ) }` );
 		}
-
-		this.m_pfnSigner = pfnSigner;
-		pfnCallback( null );
-	}
-
-	/**
-	 *	update verifier address
-	 *
-	 *	@param	{function}	pfnVerifier
-	 *	@param	{function}	pfnCallback
-	 */
-	updateVerifier( pfnVerifier, pfnCallback )
-	{
-		if ( ! DeUtilsCore.isFunction( pfnSigner ) )
+		if ( ! DeUtilsCore.isFunction( pfnVerifier ) )
 		{
-			return pfnCallback( `call updateSigner with invalid pfnSigner: ${ JSON.stringify( pfnSigner ) }` );
+			return pfnCallback( `call updateSignerAndVerifier with invalid pfnVerifier: ${ JSON.stringify( pfnVerifier ) }` );
 		}
 
-		this.m_pfnVerifier = pfnVerifier;
+		//	...
+		this.m_pfnSigner	= pfnSigner;
+		this.m_pfnVerifier	= pfnVerifier;
+
+		//	...
 		pfnCallback( null );
 	}
 
@@ -109,7 +127,6 @@ class GossiperValidation
 
 		return this.m_pfnVerifier( oJsonMessage, sAddress, sSignature, pfnCallback );
 	}
-
 }
 
 

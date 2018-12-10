@@ -11,6 +11,10 @@ const DEFAULT_MNEMONIC	= 'describe lock hat defy fever kiss spoon hint dinosaur 
 
 
 
+// interface IGossiperSigner
+// {
+//
+// }
 
 
 /**
@@ -21,8 +25,8 @@ class GossiperSigner
 	/**
 	 *	@constructor
 	 *
-	 * 	@param	{object}	 oOptions
-	 * 	@param	{string}	 oOptions.mnemonic
+	 * 	@param	{object}	 [oOptions]
+	 * 	@param	{string}	 [oOptions.mnemonic]
 	 */
 	constructor( oOptions )
 	{
@@ -51,7 +55,7 @@ class GossiperSigner
 	}
 
 	/**
-	 *	default sign
+	 *	default signer
 	 *
 	 *	@param	{object}	oJsonMessage
 	 *	@param	{function}	pfnCallback( err, sSignature )
@@ -80,18 +84,23 @@ class GossiperSigner
 	}
 
 	/**
-	 * 	default verify
+	 * 	default verifier
 	 *
 	 *	@param	{object}	oJsonMessage
+	 *	@param	{string}	sAddress
 	 *	@param	{string}	sSignature
 	 *	@param	{function}	pfnCallback( err, bVerify )
 	 *	@return	{*}
 	 */
-	verify( oJsonMessage, sSignature, pfnCallback )
+	verify( oJsonMessage, sAddress, sSignature, pfnCallback )
 	{
 		if ( ! DeUtilsCore.isPlainObject( oJsonMessage ) )
 		{
 			return pfnCallback( `call verify with invalid oJsonMessage: ${ JSON.stringify( oJsonMessage ) }` );
+		}
+		if ( ! DeUtilsCore.isExistingString( sAddress ) )
+		{
+			return pfnCallback( `call verify with invalid sAddress: ${ JSON.stringify( sAddress ) }` );
 		}
 		if ( ! DeUtilsCore.isExistingString( sSignature ) )
 		{
@@ -101,7 +110,7 @@ class GossiperSigner
 		try
 		{
 			let sMessage	= JSON.stringify( oJsonMessage );
-			let bVerified	= new Message( sMessage ).verify( this.m_sFirstAddress, sSignature );
+			let bVerified	= new Message( sMessage ).verify( sAddress, sSignature );
 
 			pfnCallback( null, bVerified );
 		}
