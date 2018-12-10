@@ -1,6 +1,6 @@
 const { DeUtilsCore }	= require( 'deutils.js' );
 const { Gossiper }	= require( '../js/gossiper.js' );
-const _ws_service	= require( '../ws/ws_service.js' );
+const _ws_service	= require( '../js/gossiper-ws.js' );
 
 
 

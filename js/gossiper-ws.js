@@ -1,6 +1,3 @@
-/*jslint node: true */
-"use strict";
-
 /**
  *	@boss	XING
  */
@@ -9,22 +6,17 @@ const socks		= process.browser ? null : require( 'socks' + '' );
 
 
 /**
- *	TODO
- *	1, eventBus.emit( "launch_pow", round_index );
- */
-
-
-/**
  * 	constants
  */
-const POW_SERVICE_MAX_INBOUND	= 1000;
+const GOSSIPER_WS_MAX_INBOUND	= 1000;
 
 
 /**
- * 	variables
+ * 	global variables
  */
-let m_arrCacheOutboundPeers	= [];
-let m_oCacheRunningServers	= {};
+let _arrCacheOutboundPeers	= [];
+let _oCacheRunningServers	= {};
+
 
 
 
@@ -50,45 +42,45 @@ function createServer( oOptions )
 
 	if ( 'object' !== typeof oOptions )
 	{
-		throw new Error( 'call createServer with invalid oOptions' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions' );
 	}
 	if ( 'string' !== typeof oOptions.url )
 	{
-		throw new Error( 'call createServer with invalid oOptions.url.' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.url.' );
 	}
 	if ( 'number' !== typeof oOptions.port )
 	{
-		throw new Error( 'call createServer with invalid oOptions.port.' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.port.' );
 	}
 	if ( 'function' !== typeof oOptions.onStart )
 	{
-		throw new Error( 'call createServer with invalid oOptions.onStart' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.onStart' );
 	}
 	if ( 'function' !== typeof oOptions.onConnection )
 	{
-		throw new Error( 'call createServer with invalid oOptions.onConnection' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.onConnection' );
 	}
 	if ( 'function' !== typeof oOptions.onMessage )
 	{
-		throw new Error( 'call createServer with invalid oOptions.onMessage' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.onMessage' );
 	}
 	if ( 'function' !== typeof oOptions.onError )
 	{
-		throw new Error( 'call createServer with invalid oOptions.onError' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.onError' );
 	}
 	if ( 'function' !== typeof oOptions.onClose )
 	{
-		throw new Error( 'call createServer with invalid oOptions.onClose' );
+		throw new Error( 'GOSSIPER-WS }} call createServer with invalid oOptions.onClose' );
 	}
 
 	//
 	//	key of this server
 	//
 	sServerKey = `*.${ oOptions.port }`;
-	if ( m_oCacheRunningServers.hasOwnProperty( sServerKey ) )
+	if ( _oCacheRunningServers.hasOwnProperty( sServerKey ) )
 	{
-		console.log( `server ${ sServerKey } already running.` );
-		oOptions.onStart( null, m_oCacheRunningServers[ sServerKey ] );
+		console.log( `GOSSIPER-WS }} server ${ sServerKey } already running.` );
+		oOptions.onStart( null, _oCacheRunningServers[ sServerKey ] );
 		return false;
 	}
 
@@ -127,7 +119,7 @@ function createServer( oOptions )
 			return false;
 		}
 		if ( Array.isArray( oWsClient.clients ) &&
-			oWsClient.clients.length >= POW_SERVICE_MAX_INBOUND )
+			oWsClient.clients.length >= GOSSIPER_WS_MAX_INBOUND )
 		{
 			oOptions.onConnection( `inbound connections maxed out, rejecting new client ${ sRemoteAddress }`, oWsClient );
 			oWsClient.close( 1000, "inbound connections maxed out" );
@@ -143,7 +135,7 @@ function createServer( oOptions )
 		oWsClient.last_ts	= Date.now();
 
 		//	...
-		console.log( `got connection from ${ oWsClient.peer }, host ${ oWsClient.host }` );
+		console.log( `GOSSIPER-WS }} got connection from ${ oWsClient.peer }, host ${ oWsClient.host }` );
 
 		//
 		//	callback saying there was a client connected
@@ -177,7 +169,7 @@ function createServer( oOptions )
 	//
 	//	update running server list
 	//
-	m_oCacheRunningServers[ sServerKey ] = oWsServer;
+	_oCacheRunningServers[ sServerKey ] = oWsServer;
 
 	//	...
 	console.log( `new WebSocket server(${ sServerKey }) running at port ${ oOptions.port }` );
@@ -203,28 +195,28 @@ function connectToServer( oOptions )
 
 	if ( 'object' !== typeof oOptions )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions' );
 	}
 	if ( 'string' !== typeof oOptions.minerGateway ||
 		0 === oOptions.minerGateway.length )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions.minerGateway' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions.minerGateway' );
 	}
 	if ( 'function' !== typeof oOptions.onOpen )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions.onOpen' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions.onOpen' );
 	}
 	if ( 'function' !== typeof oOptions.onMessage )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions.onMessage' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions.onMessage' );
 	}
 	if ( 'function' !== typeof oOptions.onError )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions.onError' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions.onError' );
 	}
 	if ( 'function' !== typeof oOptions.onClose )
 	{
-		throw new Error( 'call connectToServer with invalid oOptions.onClose' );
+		throw new Error( 'GOSSIPER-WS }} call connectToServer with invalid oOptions.onClose' );
 	}
 
 	//	...
@@ -241,7 +233,7 @@ function connectToServer( oOptions )
 
 		if ( ! oWs.url )
 		{
-			throw new Error( "no url on ws" );
+			throw new Error( "GOSSIPER-WS }} no url on ws" );
 		}
 
 		//
@@ -249,7 +241,7 @@ function connectToServer( oOptions )
 		//
 		if ( oWs.url !== sUrl && oWs.url !== sUrl + "/" )
 		{
-			throw new Error( `url is different: ${ oWs.url }` );
+			throw new Error( `GOSSIPER-WS }} url is different: ${ oWs.url }` );
 		}
 
 		//	...
@@ -261,7 +253,7 @@ function connectToServer( oOptions )
 			//	May happen if we abondoned a driver attempt after timeout
 			// 		but it still succeeded while we opened another driver
 			//
-			console.log( `already have a connection to ${ sUrl }, will keep the old one and close the duplicate` );
+			console.log( `GOSSIPER-WS }} already have a connection to ${ sUrl }, will keep the old one and close the duplicate` );
 			oWs.close( 1000, 'duplicate driver' );
 
 			//	...
@@ -277,7 +269,7 @@ function connectToServer( oOptions )
 		oWs.last_ts	= Date.now();			//	record the last timestamp while we connected to this peer
 
 		//	...
-		console.log( `connected to ${ sUrl }, host ${ oWs.host }` );
+		console.log( `GOSSIPER-WS }} connected to ${ sUrl }, host ${ oWs.host }` );
 
 		//
 		//	cache new socket handle
@@ -323,28 +315,28 @@ function sendMessage( oWs, sCommand, jsonMessage )
 {
 	if ( ! oWs )
 	{
-		console.log( `${ __filename } :: call sendMessage with invalid oWs.` );
+		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid oWs.` );
 		return false;
 	}
 	if ( oWs.OPEN !== oWs.readyState )
 	{
-		console.log( `${ __filename } :: readyState=${ oWs.readyState } on peer ${ oWs.peer }, will not send message ['${ sCommand }',${ JSON.stringify( jsonMessage ) }]` );
+		console.log( `GOSSIPER-WS }} ${ __filename } :: readyState=${ oWs.readyState } on peer ${ oWs.peer }, will not send message ['${ sCommand }',${ JSON.stringify( jsonMessage ) }]` );
 		return false;
 	}
 	if ( 'string' !== typeof sCommand )
 	{
-		console.log( `${ __filename } :: call sendMessage with invalid sCommand.` );
+		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid sCommand.` );
 		return false;
 	}
 	if ( 'object' !== typeof jsonMessage )
 	{
-		console.log( `${ __filename } :: call sendMessage with invalid jsonMessage.` );
+		console.log( `GOSSIPER-WS }} ${ __filename } :: call sendMessage with invalid jsonMessage.` );
 		return false;
 	}
 
 	let sContent	= JSON.stringify( [ sCommand, jsonMessage ] );
 
-	console.log( `SENDING ${ sContent } to ${ oWs.peer }` );
+	console.log( `GOSSIPER-WS }} SENDING ${ sContent } to ${ oWs.peer }` );
 	oWs.send( sContent );
 
 	//	...
@@ -403,7 +395,7 @@ function _cacheGetHandleByUrl( sUrl )
 	//	...
 	oRet		= null;
 	sUrl		= sUrl.trim().toLowerCase();
-	arrResult	= m_arrCacheOutboundPeers.filter( oSocket => oSocket.peer === sUrl );
+	arrResult	= _arrCacheOutboundPeers.filter( oSocket => oSocket.peer === sUrl );
 	if ( Array.isArray( arrResult ) && 1 === arrResult.length )
 	{
 		oRet = arrResult[ 0 ];
@@ -428,7 +420,7 @@ function _cacheAddHandle( oSocket )
 
 	//	...
 	_cacheRemoveHandle( oSocket );
-	m_arrCacheOutboundPeers.push( oSocket );
+	_arrCacheOutboundPeers.push( oSocket );
 	return true;
 }
 
@@ -451,11 +443,11 @@ function _cacheRemoveHandle( oSocket )
 
 	//	...
 	bRet	= false;
-	nIndex	= m_arrCacheOutboundPeers.indexOf( oSocket );
+	nIndex	= _arrCacheOutboundPeers.indexOf( oSocket );
 	if ( -1 !== nIndex )
 	{
 		bRet = true;
-		m_arrCacheOutboundPeers.splice( nIndex, 1 );
+		_arrCacheOutboundPeers.splice( nIndex, 1 );
 	}
 
 	return bRet;

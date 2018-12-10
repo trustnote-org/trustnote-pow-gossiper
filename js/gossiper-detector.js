@@ -1,6 +1,3 @@
-const _log			= require( 'npmlog' );
-
-
 /**
  * 	@constants
  */
