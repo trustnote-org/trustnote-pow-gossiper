@@ -5,12 +5,6 @@ const { DeUtilsCore }	= require( 'deutils.js' );
 const { GossiperUtils }	= require( './gossiper-utils' );
 
 
-/**
- * 	@constants
- */
-const DEFAULT_MNEMONIC	= 'describe lock hat defy fever kiss spoon hint dinosaur promote luxury amateur';
-
-
 
 /**
  * 	@class GossiperValidator
@@ -19,11 +13,8 @@ class GossiperValidator
 {
 	/**
 	 *	@constructor
-	 *
-	 * 	@param	{object}	 [oOptions]
-	 * 	@param	{string}	 [oOptions.mnemonic]
 	 */
-	constructor( oOptions )
+	constructor()
 	{
 		this.m_sMnemonic	= this._loadLocalMnemonic();
 		this.m_oMnemonicSeed	= new Mnemonic( this.m_sMnemonic );
