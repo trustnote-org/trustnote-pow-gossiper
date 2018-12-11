@@ -1,3 +1,6 @@
+const _fs			= require( 'fs' );
+const _path			= require( 'path' );
+
 const UrlParser			= require( 'url-parse' );
 const { DeUtilsCore }		= require( 'deutils.js' );
 const { DeUtilsNetwork }	= require( 'deutils.js' );
@@ -88,6 +91,91 @@ class GossiperUtils
 		return GossiperReservedKeys.includes( sKey );
 	}
 
+
+	/**
+	 * 	get apps data directory
+	 *
+	 *	@return	{string}
+	 */
+	static getUserAppsDataDir()
+	{
+		switch( process.platform )
+		{
+		case 'win32':
+			return process.env.LOCALAPPDATA;
+		case 'linux':
+			return process.env.HOME + '/.config';
+		case 'darwin':
+			return process.env.HOME + '/Library/Application Support';
+		default:
+			throw Error("unknown platform "+process.platform);
+		}
+	}
+
+	/**
+	 * 	get package.json directory
+	 *
+	 *	@param	{string}	sStartDir
+	 *	@return	{string}
+	 */
+	static getPackageJsonDir( sStartDir )
+	{
+		try
+		{
+			_fs.accessSync( sStartDir + '/package.json' );
+			return sStartDir;
+		}
+		catch ( e )
+		{
+			let sParentDir	= path.dirname( sStartDir );
+			if ( '/' === sParentDir || 'win32' === process.platform && sParentDir.match( /^\w:[\/\\]$/ ) )
+			{
+				throw Error( `no package.json found` );
+			}
+
+			return this.getPackageJsonDir( sParentDir );
+		}
+	}
+
+	/**
+	 * 	app installation dir, this is where the topmost package.json resides
+	 *
+	 *	@return {string}
+	 */
+	static getAppRootDir()
+	{
+		let sMainModuleDir = path.dirname( process.mainModule.paths[ 0 ] );
+		return this.getPackageJsonDir( sMainModuleDir );
+	}
+
+	/**
+	 * 	read app name from the topmost package.json
+	 *
+	 *	@return	{string}
+	 */
+	static getAppName()
+	{
+		let sAppDir = this.getAppRootDir();
+		console.log( `app dir ${ sAppDir }` );
+		return require( sAppDir + '/package.json' ).name;
+	}
+
+	/**
+	 * 	app data dir inside user's home directory
+	 *
+	 *	@return {string}
+	 */
+	static getAppDataDir()
+	{
+		if ( 'win32' === process.platform )
+		{
+			return ( this.getUserAppsDataDir() + '\\' + this.getAppName() );
+		}
+		else
+		{
+			return ( this.getUserAppsDataDir() + '/' + this.getAppName() );
+		}
+	}
 
 
 }

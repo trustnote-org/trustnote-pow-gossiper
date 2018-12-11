@@ -1,6 +1,8 @@
+const _fs		= require( 'fs' );
 const Mnemonic		= require( 'bitcore-mnemonic' );
 const Message		= require( 'bitcore-message' );
 const { DeUtilsCore }	= require( 'deutils.js' );
+const { GossiperUtils }	= require( './gossiper-utils' );
 
 
 /**
@@ -111,6 +113,39 @@ class GossiperValidator
 		{
 			pfnCallback( new Error( err ) );
 		}
+	}
+
+
+	/**
+	 * 	load local mnemonic
+	 *
+	 *	@return	{string}
+	 *	@private
+	 */
+	_loadLocalMnemonic()
+	{
+		let sMnemonic		= null;
+		let sAppDataDir		= GossiperUtils.getAppDataDir();
+		let sMnemonicFile	= `${ sAppDataDir }/gossiper-validator.json`;
+
+		try
+		{
+			if ( _fs.existsSync( sAppDataDir ) &&
+				_fs.existsSync( sMnemonicFile ) )
+			{
+				let sContent	= _fs.readFileSync( sMnemonicFile );
+				let oJson	= JSON.parse( sContent );
+				if ( DeUtilsCore.isPlainObjectWithKeys( oJson, 'mnemonic' ) )
+				{
+					sMnemonic = oJson.mnemonic;
+				}
+			}
+		}
+		catch ( err )
+		{
+		}
+
+		return sMnemonic;
 	}
 
 }

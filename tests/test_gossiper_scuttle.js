@@ -1,6 +1,6 @@
 const assert			= require( 'assert' );
-const { GossiperScuttle }	= require( '../js/gossiper-scuttle' );
-const { GossiperPeer }		= require( '../js/gossiper-peer' );
+const { GossiperScuttle }	= require( '../src/js/gossiper-scuttle' );
+const { GossiperPeer }		= require( '../src/js/gossiper-peer' );
 
 
 describe( 'GossiperScuttle.test', () =>

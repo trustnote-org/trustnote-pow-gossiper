@@ -1,5 +1,5 @@
 const assert			= require( 'assert' );
-const { GossiperDetector }	= require( '../js/gossiper-detector' );
+const { GossiperDetector }	= require( '../src/js/gossiper-detector' );
 
 
 describe( 'GossiperDetector.test', () =>

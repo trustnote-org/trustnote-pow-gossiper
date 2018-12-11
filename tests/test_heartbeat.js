@@ -1,8 +1,8 @@
 const _log			= require( 'npmlog' );
 
 const assert		= require( 'assert' );
-const { Gossiper }	= require( '../js/gossiper' );
-const { GossiperPeer }	= require( '../js/gossiper-peer' );
+const { Gossiper }	= require( '../src/js/gossiper' );
+const { GossiperPeer }	= require( '../src/js/gossiper-peer' );
 
 
 /**

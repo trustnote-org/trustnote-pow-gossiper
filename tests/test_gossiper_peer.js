@@ -1,5 +1,5 @@
 const assert		= require( 'assert' );
-const { GossiperPeer }	= require( '../js/gossiper-peer' );
+const { GossiperPeer }	= require( '../src/js/gossiper-peer' );
 
 
 describe( 'GossiperPeer.test', () =>
