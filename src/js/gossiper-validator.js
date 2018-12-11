@@ -25,8 +25,23 @@ class GossiperValidator
 	 */
 	constructor( oOptions )
 	{
-		this.m_sMnemonic	= ( DeUtilsCore.isPlainObjectWithKeys( oOptions, 'mnemonic' ) ? oOptions.mnemonic : DEFAULT_MNEMONIC ) || DEFAULT_MNEMONIC;
+		this.m_sMnemonic	= this._loadLocalMnemonic();
 		this.m_oMnemonicSeed	= new Mnemonic( this.m_sMnemonic );
+		if ( Mnemonic.isValid( this.m_oMnemonicSeed.toString() ) )
+		{
+			//
+			//	mnemonic loaded from local is valid
+			//
+			this.m_sMnemonic	= this.m_oMnemonicSeed.toString();
+		}
+		else
+		{
+			//
+			//	generate new
+			//
+			this.m_oMnemonicSeed	= new Mnemonic();
+			this.m_sMnemonic	= this.m_oMnemonicSeed.toString();
+		}
 
 		//	Calculate HD Master Extended Private Key
 		this.m_oMastPrivateKey	= this.m_oMnemonicSeed.toHDPrivateKey();
@@ -146,6 +161,48 @@ class GossiperValidator
 		}
 
 		return sMnemonic;
+	}
+
+	/**
+	 * 	save mnemonic
+	 *
+	 *	@param	{string}	sMnemonic
+	 *	@return	{boolean}
+	 *	@private
+	 */
+	_saveLocalMnemonic( sMnemonic )
+	{
+		let bRet		= false;
+		let sAppDataDir		= GossiperUtils.getAppDataDir();
+		let sMnemonicFile	= `${ sAppDataDir }/gossiper-validator.json`;
+
+		try
+		{
+			if ( ! _fs.existsSync( sAppDataDir ) )
+			{
+				_fs.mkdirSync( sAppDataDir, 0o755 );
+			}
+
+			_fs.writeFileSync
+			(
+				sMnemonicFile,
+				JSON.stringify({
+					mnemonic : sMnemonic,
+				}),
+				{
+					encoding : 'utf8',
+					mode : 0o755,
+					flag : 'w'
+				}
+			);
+
+			bRet = true;
+		}
+		catch ( err )
+		{
+		}
+
+		return bRet;
 	}
 
 }
