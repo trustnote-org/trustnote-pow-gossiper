@@ -8,7 +8,7 @@ const { GossiperUtils }		= require( './gossiper-utils' );
 /**
  * 	@constants
  */
-const REFRESH_INTERVAL		= 1000;
+const REFRESH_INTERVAL		= 3000;
 
 
 
@@ -235,6 +235,18 @@ class GossiperRouter extends EventEmitter
 		//
 		//	to refresh router
 		//
+		let arrLivePeers	= [];
+		for ( let sUrl in this.m_oRouterMap )
+		{
+			let oPeer = this.m_oRouterMap[ sUrl ];
+			if ( DeUtilsCore.isPlainObjectWithKeys( oPeer, 'socket' ) &&
+				oPeer.socket )
+			{
+				arrLivePeers.push( sUrl );
+			}
+		}
+
+		console.log( `))) GossiperRouter [] :: `, arrLivePeers.toString() );
 	}
 
 }
