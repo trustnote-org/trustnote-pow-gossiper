@@ -246,7 +246,7 @@ class GossiperRouter extends EventEmitter
 			}
 		}
 
-		console.log( `))) GossiperRouter [] :: `, arrLivePeers.toString() );
+		//console.log( `))) GossiperRouter [] :: `, arrLivePeers.toString() );
 	}
 
 }
