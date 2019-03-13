@@ -1,0 +1,43 @@
+{
+	"name": "trustnote-pow-gossiper",
+	"description": "Trustnote PoW Gossiper",
+	"author": "Liu Qixing",
+	"version": "1.0.0",
+	"keywords": [
+		"trustnote",
+		"pow",
+		"multisignature",
+		"network",
+		"gossiper"
+	],
+	"homepage": "https://github.com/trustnote/trustnote-pow-gossiper",
+	"engines": {
+		"node": ">=0.10.0"
+	},
+	"main": "js/index.js",
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/trustnote/trustnote-pow-gossiper.git",
+		"type": "git"
+	},
+	"bugs": {
+		"url": "https://github.com/trustnote/trustnote-pow-gossiper/issues"
+	},
+	"browser": {
+		"request": "browser-request",
+		"secp256k1": "secp256k1/js"
+	},
+	"dependencies": {
+		"async": "^1.5.2",
+		"deutils.js": ">=1.0.0",
+		"events": "^3.0.0",
+		"fs": "0.0.1-security",
+		"jshint": "^2.9.6",
+		"socks": "1.1.10",
+		"url-parse": ">=1.0.0",
+		"ws": "^1.0.1",
+		"assert": "^1.4.1",
+		"mocha": "^5.2.0",
+		"npmlog": ">=1.0.0"
+	}
+}
